@@ -2510,7 +2510,6 @@ export default function App() {
   return (
     <div ref={appRef}>
       <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
-      <LayoutSwitcher current={homeLayout} onChange={changeHomeLayout} />
       <header className="site-header">
         <div className="header-left">
           {/* Hamburger — mobile only, left of logo */}
@@ -2713,6 +2712,7 @@ export default function App() {
           </div>
         </main>
       )}
+      <LayoutSwitcher current={homeLayout} onChange={changeHomeLayout} />
       <BookingModal isOpen={isBookingModalOpen} onClose={closeBookingModal} wizardKey={bookingModalKey} />
       <ChatWidget bookingModalOpen={isBookingModalOpen} />
     </div>

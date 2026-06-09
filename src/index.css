@@ -3515,7 +3515,7 @@ a {
   position: fixed;
   top: 0.85rem;
   right: 0.85rem;
-  z-index: 9000;
+  z-index: 100000;
 }
 .layout-switcher__btn {
   display: inline-flex;
