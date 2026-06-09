@@ -75,6 +75,8 @@ const VEHICLE_MAKE_OPTIONS = [
   .sort((a, b) => a.localeCompare(b))
   .concat(["Other"]);
 
+const HOME_LAYOUT_STORAGE_KEY = "sa-home-layout";
+
 /** In-app booking modal (hash only — no third-party scheduler). */
 const BOOKING_MODAL_HREF = "#book";
 
@@ -1321,6 +1323,80 @@ function CardMedia({ section }) {
   return <img src={section.mediaSrc} alt="Automotive service preview" className="marketing-card__bg" />;
 }
 
+function ReviewsTicker({ reviews, googleRating = "4.8/5", onOpenReviewsPage }) {
+  const trackRef = useRef(null);
+  const cloneRef = useRef(null);
+  const wrapRef = useRef(null);
+
+  useReviewsMarquee({
+    trackWrapRef: wrapRef,
+    trackRef: trackRef,
+    cloneTrackRef: cloneRef,
+    enabled: Boolean(reviews?.length),
+    introStaggerPx: 36,
+    introDuration: 1,
+    introStagger: 0.05,
+    speedPxPerSec: 72,
+    extraDeps: [reviews],
+  });
+
+  return (
+    <section className="reviews-ticker" aria-label="Customer reviews ticker">
+      <div className="reviews-list" aria-label="Customer reviews">
+        <div className="reviews-list__top">
+          <p className="reviews-list__score" aria-label={`${googleRating} stars`}>
+            Reviews {googleRating} {"★★★★★"}
+          </p>
+          <div className="reviews-list__actions">
+            <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="reviews-list__cta">
+              Leave a Google Review
+            </a>
+            <button type="button" className="reviews-list__view-all" onClick={onOpenReviewsPage}>
+              View all reviews
+            </button>
+          </div>
+        </div>
+        <div className="reviews-stream">
+          <div className="reviews-track-wrap" ref={wrapRef}>
+            <div className="reviews-track" ref={trackRef}>
+              {reviews.map((review) => (
+                <article key={`${review.name}-${review.date}`} className="review-item">
+                  <div className="review-item__top">
+                    <strong>{review.name}</strong>
+                    <span>{review.date}</span>
+                  </div>
+                  <p className="review-item__rating" aria-label="5 out of 5 stars">{"★★★★★"}</p>
+                  <p className="review-item__quote">"{review.quote}"</p>
+                </article>
+              ))}
+            </div>
+            <div className="reviews-track" ref={cloneRef} aria-hidden="true">
+              {reviews.map((review) => (
+                <article key={`${review.name}-${review.date}-clone`} className="review-item">
+                  <div className="review-item__top">
+                    <strong>{review.name}</strong>
+                    <span>{review.date}</span>
+                  </div>
+                  <p className="review-item__rating" aria-label="5 out of 5 stars">{"★★★★★"}</p>
+                  <p className="review-item__quote">"{review.quote}"</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="reviews-list__mobile-actions">
+          <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="reviews-list__cta">
+            Leave a Google Review
+          </a>
+          <button type="button" className="reviews-list__view-all" onClick={onOpenReviewsPage}>
+            View all reviews
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SectionCard({ section, onOpenBooking, onOpenServicesPage, onOpenReviewsPage }) {
   const reviewsTrackRef = useRef(null);
   const reviewsTrackCloneRef = useRef(null);
@@ -1576,63 +1652,11 @@ function SectionCard({ section, onOpenBooking, onOpenServicesPage, onOpenReviews
 
   if (section.reviews) {
     return (
-      <section className="reviews-ticker" aria-label="Customer reviews ticker">
-        <div className="reviews-list" aria-label="Customer reviews">
-          <div className="reviews-list__top">
-            <p className="reviews-list__score" aria-label={`${section.googleRating || "4.8/5"} stars`}>
-              Reviews {section.googleRating || "4.8/5"} {"★★★★★"}
-            </p>
-            <div className="reviews-list__actions">
-              <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="reviews-list__cta">
-                Leave a Google Review
-              </a>
-              <button type="button" className="reviews-list__view-all" onClick={onOpenReviewsPage}>
-                View all reviews
-              </button>
-            </div>
-          </div>
-          <div className="reviews-stream">
-            <div className="reviews-track-wrap" ref={reviewsTrackWrapRef}>
-              <div className="reviews-track" ref={reviewsTrackRef}>
-                {section.reviews.map((review) => (
-                  <article key={`${review.name}-${review.date}`} className="review-item">
-                    <div className="review-item__top">
-                      <strong>{review.name}</strong>
-                      <span>{review.date}</span>
-                    </div>
-                    <p className="review-item__rating" aria-label="5 out of 5 stars">
-                      {"★★★★★"}
-                    </p>
-                    <p className="review-item__quote">"{review.quote}"</p>
-                  </article>
-                ))}
-              </div>
-              <div className="reviews-track" ref={reviewsTrackCloneRef} aria-hidden="true">
-                {section.reviews.map((review) => (
-                  <article key={`${review.name}-${review.date}-clone`} className="review-item">
-                    <div className="review-item__top">
-                      <strong>{review.name}</strong>
-                      <span>{review.date}</span>
-                    </div>
-                    <p className="review-item__rating" aria-label="5 out of 5 stars">
-                      {"★★★★★"}
-                    </p>
-                    <p className="review-item__quote">"{review.quote}"</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="reviews-list__mobile-actions">
-            <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="reviews-list__cta">
-              Leave a Google Review
-            </a>
-            <button type="button" className="reviews-list__view-all" onClick={onOpenReviewsPage}>
-              View all reviews
-            </button>
-          </div>
-        </div>
-      </section>
+      <ReviewsTicker
+        reviews={section.reviews}
+        googleRating={section.googleRating}
+        onOpenReviewsPage={onOpenReviewsPage}
+      />
     );
   }
 
@@ -2019,6 +2043,248 @@ function CardsFooter({ className = "", compact = false }) {
   );
 }
 
+function LayoutSwitcher({ current, onChange }) {
+  const [open, setOpen] = useState(false);
+  const options = [
+    { id: 1, label: "1 — Trustworthy Mechanic", hint: "Original" },
+    { id: 2, label: "2 — Luxury & Sport", hint: "Premium" },
+    { id: 3, label: "3 — Traditional", hint: "Classic shop site" },
+  ];
+  return (
+    <div className="layout-switcher">
+      <button
+        type="button"
+        className="layout-switcher__btn"
+        aria-label="Switch home layout"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <circle cx="12" cy="5" r="2" fill="currentColor" />
+          <circle cx="12" cy="12" r="2" fill="currentColor" />
+          <circle cx="12" cy="19" r="2" fill="currentColor" />
+        </svg>
+      </button>
+      {open && (
+        <>
+          <div className="layout-switcher__overlay" onClick={() => setOpen(false)} />
+          <div className="layout-switcher__menu" role="menu">
+            <p className="layout-switcher__heading">Home layout (dev)</p>
+            {options.map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                role="menuitemradio"
+                aria-checked={current === o.id}
+                className={`layout-switcher__item${current === o.id ? " is-active" : ""}`}
+                onClick={() => { onChange(o.id); setOpen(false); }}
+              >
+                <span className="layout-switcher__item-label">{o.label}</span>
+                <span className="layout-switcher__item-hint">{o.hint}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function HomeLuxury({ onOpenBooking, onOpenServicesPage, onOpenReviewsPage, onOpenAboutPage }) {
+  const featuredServices = serviceDetails.slice(0, 6);
+  const gallery = ["/images/sa-01.webp", "/images/sa-02.webp", "/images/sa-03.webp"];
+
+  return (
+    <div className="home-v2">
+      <section className="lux-hero">
+        <img src="/images/sa-hero.webp" alt="" className="lux-hero__bg" aria-hidden="true" />
+        <div className="lux-hero__overlay" />
+        <div className="lux-hero__inner">
+          <p className="lux-eyebrow">Mount Vernon, NY · Since 1995</p>
+          <h1 className="lux-hero__title">Precision service for the cars you&nbsp;love.</h1>
+          <p className="lux-hero__subtitle">
+            From luxury sedans to weekend sport coupes, our ASE-certified technicians deliver
+            dealership-quality work — without dealership pricing.
+          </p>
+          <div className="lux-hero__actions">
+            <button type="button" className="lux-btn lux-btn--gold" onClick={onOpenBooking}>
+              Book Appointment
+            </button>
+            <a href={SHOP_PHONE_HREF} className="lux-btn lux-btn--ghost">📞 {SHOP_PHONE}</a>
+          </div>
+        </div>
+        <div className="lux-stats">
+          <div className="lux-stat"><strong>1995</strong><span>Serving Since</span></div>
+          <div className="lux-stat"><strong>4.8/5</strong><span>363+ Reviews</span></div>
+          <div className="lux-stat"><strong>ASE</strong><span>Certified Team</span></div>
+          <div className="lux-stat"><strong>12k mi</strong><span>Repair Warranty</span></div>
+        </div>
+      </section>
+
+      <section className="lux-section">
+        <div className="lux-section__head">
+          <p className="lux-eyebrow lux-eyebrow--dark">What We Do</p>
+          <h2 className="lux-section__title">Expertise across every make &amp; model</h2>
+        </div>
+        <div className="lux-services">
+          {featuredServices.map((s) => (
+            <article key={s.title} className="lux-service-card">
+              <h3>{s.title}</h3>
+              <p className="lux-service-card__price">{s.startingPrice}</p>
+              <ul>{s.included.map((i) => <li key={i}>{i}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+        <div className="lux-section__cta">
+          <button type="button" className="lux-btn lux-btn--outline-dark" onClick={() => onOpenServicesPage("link")}>
+            View all services
+          </button>
+        </div>
+      </section>
+
+      <section className="lux-feature">
+        <div className="lux-feature__media">
+          <img src="/images/sa-under-hood.webp" alt="Technician performing major repair work" />
+        </div>
+        <div className="lux-feature__body">
+          <p className="lux-eyebrow lux-eyebrow--dark">Quality Workmanship</p>
+          <h2 className="lux-section__title">Major repairs, handled with surgical precision</h2>
+          <p className="lux-feature__copy">
+            From engine and transmission concerns to brake and suspension work, we focus on long-term
+            fixes backed by a 12,000 MI / 12 MO warranty. Every job is personal.
+          </p>
+          <button type="button" className="lux-btn lux-btn--dark" onClick={onOpenAboutPage}>About us</button>
+        </div>
+      </section>
+
+      <section className="lux-gallery" aria-label="Shop gallery">
+        {gallery.map((src) => (
+          <div key={src} className="lux-gallery__item">
+            <img src={src} alt="Surgical Auto Repair shop" loading="lazy" />
+          </div>
+        ))}
+      </section>
+
+      <ReviewsTicker reviews={CUSTOMER_REVIEWS} googleRating="4.8/5" onOpenReviewsPage={onOpenReviewsPage} />
+
+      <section className="lux-band">
+        <div className="lux-band__inner">
+          <h2>Ready when you are.</h2>
+          <p>Financing available — Snap Finance &amp; all major cards accepted.</p>
+          <button type="button" className="lux-btn lux-btn--gold" onClick={onOpenBooking}>
+            Book Appointment
+          </button>
+        </div>
+      </section>
+
+      <CardsFooter className="cards-footer--lux" />
+    </div>
+  );
+}
+
+function HomeTraditional({ onOpenBooking, onOpenServicesPage, onOpenReviewsPage, onOpenAboutPage }) {
+  const serviceIcons = ["🔧", "🛢️", "🛑", "⚙️", "🚗", "❄️", "🔋", "💨"];
+  const topServices = serviceDetails.slice(0, 8);
+
+  return (
+    <div className="home-v3">
+      <section className="trad-hero">
+        <img src="/images/sa-exterior.jpg" alt="" className="trad-hero__bg" aria-hidden="true" />
+        <div className="trad-hero__overlay" />
+        <div className="trad-hero__inner">
+          <p className="trad-hero__pin">📍 Mount Vernon, NY</p>
+          <h1 className="trad-hero__title">Expert repairs. Fair prices. Trusted since 1995.</h1>
+          <p className="trad-hero__subtitle">
+            Your local, family-run auto repair shop for preventative maintenance and major repairs.
+            ASE-certified technicians get the job done right the first time.
+          </p>
+          <div className="trad-hero__actions">
+            <button type="button" className="trad-btn trad-btn--primary" onClick={onOpenBooking}>
+              Book Appointment
+            </button>
+            <a href={SHOP_PHONE_HREF} className="trad-btn trad-btn--secondary">📞 {SHOP_PHONE}</a>
+          </div>
+        </div>
+      </section>
+
+      <div className="trad-hours-bar">
+        <span><strong>Hours:</strong> Mon–Fri 8 AM – 6 PM</span>
+        <span><strong>Closed:</strong> Sat &amp; Sun</span>
+        <span><strong>Address:</strong> {SHOP_ADDRESS}</span>
+      </div>
+
+      <section className="trad-section">
+        <div className="trad-section__head">
+          <h2 className="trad-section__title">Our Services</h2>
+          <p className="trad-section__sub">Complete auto repair and maintenance, all under one roof.</p>
+        </div>
+        <div className="trad-services">
+          {topServices.map((s, i) => (
+            <article key={s.title} className="trad-service">
+              <span className="trad-service__icon" aria-hidden="true">{serviceIcons[i % serviceIcons.length]}</span>
+              <h3>{s.title}</h3>
+              <p>{s.symptoms[0]}</p>
+            </article>
+          ))}
+        </div>
+        <div className="trad-section__cta">
+          <button type="button" className="trad-btn trad-btn--outline" onClick={() => onOpenServicesPage("link")}>
+            View all services
+          </button>
+        </div>
+      </section>
+
+      <section className="trad-about">
+        <div className="trad-about__media">
+          <img src="/images/sa-family.webp" alt="The Surgical Auto Repair team" />
+        </div>
+        <div className="trad-about__body">
+          <h2 className="trad-section__title">A shop built on trust</h2>
+          <p>
+            Since 1995, we have provided our friends and neighbors throughout Mount Vernon with
+            dependable, trustworthy auto repairs. We treat every customer and every vehicle like family.
+          </p>
+          <ul className="trad-about__list">
+            <li>No surprise charges — repair options explained</li>
+            <li>ASE-Certified technicians with ongoing training</li>
+            <li>12,000 MI / 12 MO warranty on repairs</li>
+            <li>Free estimates &amp; financing options available</li>
+          </ul>
+          <button type="button" className="trad-btn trad-btn--outline" onClick={onOpenAboutPage}>About us</button>
+        </div>
+      </section>
+
+      <ReviewsTicker reviews={CUSTOMER_REVIEWS} googleRating="4.8/5" onOpenReviewsPage={onOpenReviewsPage} />
+
+      <section className="trad-contact">
+        <div className="trad-contact__info">
+          <h2 className="trad-section__title">Find us in Mount Vernon</h2>
+          <p className="trad-contact__line">{SHOP_ADDRESS}</p>
+          <p className="trad-contact__line"><a href={SHOP_PHONE_HREF}>{SHOP_PHONE}</a></p>
+          <p className="trad-contact__line">Mon – Fri: 8 AM – 6 PM · Closed weekends</p>
+          <p className="trad-contact__label">Neighborhoods we serve</p>
+          <ul className="trad-contact__areas">
+            {SERVICE_AREAS.map((a) => <li key={a}>{a}</li>)}
+          </ul>
+          <button type="button" className="trad-btn trad-btn--primary" onClick={onOpenBooking}>
+            Book Appointment
+          </button>
+        </div>
+        <div className="trad-contact__map">
+          <iframe
+            title="Surgical Auto Repair map"
+            src={SHOP_MAP_EMBED_URL}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </section>
+
+      <CardsFooter className="cards-footer--trad" />
+    </div>
+  );
+}
+
 export default function App() {
   const appRef = useRef(null);
   const servicesEntrySourceRef = useRef(null);
@@ -2029,6 +2295,11 @@ export default function App() {
     typeof window !== "undefined" ? getActivePageFromHash(window.location.hash) : "home"
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [homeLayout, setHomeLayout] = useState(() => {
+    if (typeof window === "undefined") return 1;
+    const saved = Number(window.localStorage.getItem(HOME_LAYOUT_STORAGE_KEY));
+    return saved === 2 || saved === 3 ? saved : 1;
+  });
 
   const openBookingModal = () => {
     setBookingModalKey((k) => k + 1);
@@ -2056,6 +2327,15 @@ export default function App() {
   const openHomePage = () => {
     window.location.hash = "";
     setActivePage("home");
+  };
+  const openAboutPage = () => {
+    window.location.hash = "";
+    setActivePage("home");
+  };
+  const changeHomeLayout = (id) => {
+    setHomeLayout(id);
+    if (typeof window !== "undefined") window.localStorage.setItem(HOME_LAYOUT_STORAGE_KEY, String(id));
+    if (activePage !== "home") openHomePage();
   };
 
   useEffect(() => {
@@ -2321,6 +2601,7 @@ export default function App() {
           </div>
         )}
       </header>
+      <LayoutSwitcher current={homeLayout} onChange={changeHomeLayout} />
 
       {activePage === "services" ? (
         <main className="layout">
@@ -2338,6 +2619,24 @@ export default function App() {
           <div className="services-page-wrap">
             <ReviewsPage onGoHome={openHomePage} onOpenBooking={openBookingModal} />
           </div>
+        </main>
+      ) : homeLayout === 2 ? (
+        <main className="layout layout--full">
+          <HomeLuxury
+            onOpenBooking={openBookingModal}
+            onOpenServicesPage={openServicesPage}
+            onOpenReviewsPage={openReviewsPage}
+            onOpenAboutPage={openAboutPage}
+          />
+        </main>
+      ) : homeLayout === 3 ? (
+        <main className="layout layout--full">
+          <HomeTraditional
+            onOpenBooking={openBookingModal}
+            onOpenServicesPage={openServicesPage}
+            onOpenReviewsPage={openReviewsPage}
+            onOpenAboutPage={openAboutPage}
+          />
         </main>
       ) : (
         <main className="layout">
