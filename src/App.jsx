@@ -7,14 +7,14 @@ import ChatWidget from "./ChatWidget";
 gsap.registerPlugin(ScrollTrigger);
 
 const GOOGLE_REVIEW_URL =
-  "https://www.google.com/search?sca_esv=27b04becbc364c98&sxsrf=ANbL-n4oMV1KYl6tcLAKfLFnkveXAywSzw:1776101633257&si=AL3DRZHrmvnFAVQPOO2Bzhf8AX9KZZ6raUI_dT7DG_z0kV2_xyU4POkNzp832qcDkBKyg_-4oqT-5XzwWMPvtiH_sjSuYhkBPRwu_bKStKoT6awuf-Yq2fcHmVKX7woOQKyr7_Ug_eRV&q=Ralph+and+Sons+Reviews&sa=X&ved=2ahUKEwj3rr2XruuTAxW-MWIAHRr_KB0Q0bkNegQIIRAF&biw=1728&bih=972&dpr=2";
-const SHOP_NAME = "Ralph & Son Auto Repair";
-const SHOP_PHONE = "(914) 776-5331";
-const SHOP_PHONE_HREF = "tel:9147765331";
-const SHOP_ADDRESS = "701 N Macquesten Pkwy, Mount Vernon, NY 10552";
-const SHOP_MAP_URL = "https://maps.google.com/?q=701+N+Macquesten+Pkwy+Mount+Vernon+NY+10552";
+  "https://www.google.com/search?q=Surgical+Auto+Repair+Mount+Vernon+reviews";
+const SHOP_NAME = "Surgical Auto Repair";
+const SHOP_PHONE = "(914) 665-3770";
+const SHOP_PHONE_HREF = "tel:9146653770";
+const SHOP_ADDRESS = "40 N Macquesten Pkwy, Mount Vernon, NY 10550";
+const SHOP_MAP_URL = "https://maps.google.com/?q=40+N+Macquesten+Pkwy+Mount+Vernon+NY+10550";
 const SHOP_MAP_EMBED_URL =
-  "https://maps.google.com/maps?q=701%20N%20Macquesten%20Pkwy%20Mount%20Vernon%20NY%2010552&output=embed";
+  "https://maps.google.com/maps?q=40%20N%20Macquesten%20Pkwy%20Mount%20Vernon%20NY%2010550&output=embed";
 
 const SERVICE_AREAS = [
   "Mount Vernon",
@@ -961,7 +961,7 @@ function MechanicLeadWizard({ title, body, variant = "page", onSubmitted }) {
           <input type="hidden" name="service_requested" value={serviceRequested} readOnly />
           <input type="hidden" name="issue_description" value={issueDescription} readOnly />
           <input type="hidden" name="customer_phone" value={contactPhone} readOnly />
-          <input type="hidden" name="logo_url" value={`${window.location.origin}/images/ralph-sons-logo.png`} readOnly />
+          <input type="hidden" name="logo_url" value={`${window.location.origin}/images/surgical-logo.webp`} readOnly />
           <textarea name="message" readOnly className="lead-form__hidden" value={composedEmailBody} rows={1} />
 
           {step === 1 && (
@@ -2543,7 +2543,7 @@ export default function App() {
               setMobileMenuOpen(false);
             }}
           >
-            <img src="/images/ralph-sons-logo.svg?v=2" alt="Ralph and Son logo" className="logo__img" />
+            <img src="/images/surgical-logo.webp" alt="Surgical Auto Repair logo" className="logo__img" />
           </a>
         </div>
 
