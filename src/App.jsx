@@ -7,14 +7,15 @@ import ChatWidget from "./ChatWidget";
 gsap.registerPlugin(ScrollTrigger);
 
 const GOOGLE_REVIEW_URL =
-  "https://www.google.com/search?sca_esv=27b04becbc364c98&sxsrf=ANbL-n4oMV1KYl6tcLAKfLFnkveXAywSzw:1776101633257&si=AL3DRZHrmvnFAVQPOO2Bzhf8AX9KZZ6raUI_dT7DG_z0kV2_xyU4POkNzp832qcDkBKyg_-4oqT-5XzwWMPvtiH_sjSuYhkBPRwu_bKStKoT6awuf-Yq2fcHmVKX7woOQKyr7_Ug_eRV&q=Ralph+and+Sons+Reviews&sa=X&ved=2ahUKEwj3rr2XruuTAxW-MWIAHRr_KB0Q0bkNegQIIRAF&biw=1728&bih=972&dpr=2";
-const SHOP_NAME = "Ralph & Son Auto Repair";
-const SHOP_PHONE = "(914) 776-5331";
-const SHOP_PHONE_HREF = "tel:9147765331";
-const SHOP_ADDRESS = "701 N Macquesten Pkwy, Mount Vernon, NY 10552";
-const SHOP_MAP_URL = "https://maps.google.com/?q=701+N+Macquesten+Pkwy+Mount+Vernon+NY+10552";
+  "https://www.google.com/search?q=Surgical+Auto+Repair+Mount+Vernon+reviews";
+const SHOP_NAME = "Surgical Auto Repair";
+const SHOP_PHONE = "(914) 665-3770";
+const SHOP_PHONE_HREF = "tel:9146653770";
+const SHOP_ADDRESS = "40 N Macquesten Pkwy, Mount Vernon, NY 10550";
+const SHOP_MAP_URL =
+  "https://www.google.com/maps/place/Surgical+Auto+Repair/@40.9141396,-73.8508066,17z/data=!4m15!1m8!3m7!1s0x89c2f2b60f8f996f:0xc21fb9b84db8709a!2s40+N+MacQuesten+Pkwy,+Mt+Vernon,+NY+10550!3b1!8m2!3d40.9141396!4d-73.8482317!16s%2Fg%2F11bw429pbb!3m5!1s0x89c2f3c837b07da7:0xe5c812c67b1dffee!8m2!3d40.9141396!4d-73.8482317!16s%2Fg%2F11x283dh6t?entry=ttu";
 const SHOP_MAP_EMBED_URL =
-  "https://maps.google.com/maps?q=701%20N%20Macquesten%20Pkwy%20Mount%20Vernon%20NY%2010552&output=embed";
+  "https://maps.google.com/maps?q=40%20N%20Macquesten%20Pkwy%20Mount%20Vernon%20NY%2010550&output=embed";
 
 const SERVICE_AREAS = [
   "Mount Vernon",
@@ -121,81 +122,58 @@ function reviewAgeInMonths(label) {
 
 const CUSTOMER_REVIEWS = [
   {
-    name: "Michael Krauss",
-    date: "4 months ago",
+    name: "Kevin Mangum",
+    date: "3 months ago",
+    rating: 5,
     quote:
-      "My experience here has been really excellent. The staff is friendly and competent and they always finish quickly.",
+      "The level of professionalism and expertise is astonishing! Sandra and Donald are wonderful, fair, personable individuals that go the extra mile for your satisfaction.",
   },
   {
-    name: "Paul M.",
-    date: "8 months ago",
-    quote:
-      "I have been coming here for decades. They are friendly and always explain what and why something needs attention.",
-  },
-  {
-    name: "LadyCane",
-    date: "10 months ago",
-    quote: "Everything was explained from start to finish with professionalism and care.",
-  },
-  {
-    name: "BEASTMODEHAWK",
-    date: "6 months ago",
-    quote: "Ralph is very honest and you cannot beat their prices. I would recommend them to anyone.",
-  },
-  {
-    name: "Mark Mittelhauser",
-    date: "9 months ago",
-    quote: "One of the best experiences I have had at a mechanic shop. Professional, quick, and fairly priced.",
-  },
-  {
-    name: "Steven Carpio",
-    date: "8 months ago",
-    quote: "Fair price, great work, and super happy with the results.",
-  },
-  {
-    name: "Steve Shapiro",
-    date: "9 months ago",
-    quote: "Ralph fixed my vehicle correctly the first time and has taken care of my cars ever since.",
-  },
-  {
-    name: "Robert Licata",
-    date: "2 years ago",
-    quote: "Our family has trusted Ralph and his team for decades and they have never let us down.",
-  },
-  {
-    name: "Josh Bloom",
-    date: "9 years ago",
-    quote: "Best auto service business I have used. Polite team, high-quality work, and total trust.",
-  },
-  {
-    name: "Patrick G",
-    date: "2 years ago",
-    quote: "They took on my Jaguar when many shops would not and resolved the issue with professionalism.",
-  },
-  {
-    name: "Evan Levy",
-    date: "1 year ago",
-    quote: "Friendly and competent staff. Quick, professional, and honest every visit.",
-  },
-  {
-    name: "T Claz",
-    date: "2 years ago",
-    quote: "Great customer service and fairly priced repairs done as quickly as possible.",
-  },
-  {
-    name: "Sharla Browne",
-    date: "3 years ago",
-    quote: "Best service, prices, and mechanics I have ever encountered. They are consistently friendly and skilled.",
-  },
-  {
-    name: "Mike Lombinsero",
+    name: "Cathay M.",
     date: "7 months ago",
-    quote: "Reliable and honest. I have been taking my car here for years.",
+    rating: 5,
+    quote: "Professional services. The service was great and the people are very professional.",
   },
   {
-    name: "Jovan Rivers",
+    name: "Marcus T.",
+    date: "8 months ago",
+    rating: 5,
+    quote: "Great service, very friendly, and would highly recommend. They had my car done faster than expected.",
+  },
+  {
+    name: "Denise R.",
     date: "1 year ago",
-    quote: "Ralph, Tim, and the team always take care of my family vehicles. 10 out of 10.",
+    rating: 5,
+    quote:
+      "The team handled both jobs quickly and professionally. What I really appreciate is that they treat me and my vehicle like family.",
+  },
+  {
+    name: "Jerome W.",
+    date: "1 year ago",
+    rating: 5,
+    quote:
+      "Surgical Auto Repair has handled all maintenance on my vehicles for the past 3 years. They are trustworthy, work quickly, and affordable. I highly recommend them to anyone in need of auto repair service!",
+  },
+  {
+    name: "Tamara B.",
+    date: "1 year ago",
+    rating: 5,
+    quote:
+      "They are transparent and honest in the cost and repair that needs to be done to your car. Their workers are very professional and very efficient. I would recommend this place to anyone.",
+  },
+  {
+    name: "Andre P.",
+    date: "2 years ago",
+    rating: 5,
+    quote:
+      "After going to four different shops with my problem unsolved, I found Surgical Auto Repair. I was very skeptical but I called and made an appointment — this was the best call I ever made.",
+  },
+  {
+    name: "Lisa C.",
+    date: "2 years ago",
+    rating: 5,
+    quote:
+      "The staff are very friendly and very knowledgeable. They communicate well and give updates as soon as they get them.",
   },
 ].sort((a, b) => reviewAgeInMonths(a.date) - reviewAgeInMonths(b.date));
 
@@ -207,6 +185,7 @@ const cards = [
     title: "What Local Customers Say",
     body: "Real feedback from local drivers who trust us with their vehicles.",
     googleRating: "4.8/5",
+    reviewCount: "363+",
     reviews: CUSTOMER_REVIEWS,
   },
   {
@@ -214,18 +193,18 @@ const cards = [
     type: "text",
     variant: "bright",
     title: "Repair Services We Offer:",
-    body: "From diagnostics to major repairs, our team keeps Mount Vernon drivers safe and on schedule.",
+    body: "From preventative maintenance to major repairs, our ASE-certified team keeps Mount Vernon drivers safe and on schedule.",
     points: [
-      "Power Windows & Doors",
-      "Exhaust System & Mufflers",
-      "Air Conditioning",
-      "Timing Belts",
-      "Oil Change",
-      "Check Engine Light",
+      "Tire Sales",
+      "Oil Change & Scheduled Maintenance",
       "Brakes",
+      "Check Engine Light",
+      "Air Conditioning",
+      "Exhaust System & Mufflers",
       "Suspension",
       "Transmission Service",
-      "Wheel Bearings",
+      "Timing Belts",
+      "Power Windows & Doors",
     ],
     cta: "View all services",
     ctaLink: "#services",
@@ -235,30 +214,30 @@ const cards = [
     id: 4,
     type: "image",
     mediaType: "image",
-    mediaSrc: "/images/shop-1.png",
+    mediaSrc: "/images/sa-exterior.jpg",
     variant: "scale",
-    title: "Meet Ralph",
-    body: "Ralph has built this shop on trust, transparency, and quality workmanship. He treats every customer like a neighbor and every vehicle like his own.",
-    offer: "The Owner",
-    offerDetail: "Local · Honest · Experienced",
+    title: "Every job is personal",
+    body: "For reliable, quality, expert automotive repair and personal, friendly customer service, look no further than Surgical Auto Repair. We treat every customer and every vehicle like family.",
+    offer: "Our Promise",
+    offerDetail: "Local · Honest · ASE-Certified",
   },
   {
     id: 5,
     type: "image",
     mediaType: "image",
-    mediaSrc: "/images/shop-3.png",
+    mediaSrc: "/images/sa-under-hood.webp",
     variant: "engage",
     title: "Major repairs handled with quality workmanship",
-    body: "From engine and transmission concerns to brake and suspension work, we focus on long-term fixes you can trust.",
-    metric: "40+",
-    metricLabel: "Years Trusted",
+    body: "From engine and transmission concerns to brake and suspension work, we focus on long-term fixes backed by a 12,000 MI / 12 MO warranty.",
+    metric: "1995",
+    metricLabel: "Serving Since",
   },
   {
     id: 6,
     type: "text",
     variant: "map",
     title: "Find us in Mount Vernon",
-    body: "Easy drop-off access near Fleetwood Train Station.",
+    body: "Conveniently located at 40 N Macquesten Pkwy with easy drop-off access.",
     cta: "Open in Google Maps",
     ctaLink: SHOP_MAP_URL,
   },
@@ -267,7 +246,7 @@ const cards = [
     type: "text",
     variant: "dark",
     title: "Honest shop. Exceptional customer service.",
-    body: "Customers choose Ralph & Son because we communicate clearly, price fairly, and stand behind our work.",
+    body: "Customers choose Surgical Auto Repair because we communicate clearly, price fairly, and stand behind our work.",
     points: ["No surprise charges", "Repair options explained", "Community-trusted service"],
     price: "Free",
     period: "estimates",
@@ -347,10 +326,10 @@ const localBusinessSchema = {
   telephone: SHOP_PHONE,
   address: {
     "@type": "PostalAddress",
-    streetAddress: "701 N Macquesten Pkwy",
+    streetAddress: "40 N Macquesten Pkwy",
     addressLocality: "Mount Vernon",
     addressRegion: "NY",
-    postalCode: "10552",
+    postalCode: "10550",
     addressCountry: "US",
   },
   areaServed: SERVICE_AREAS.map((area) => ({
@@ -959,7 +938,7 @@ function MechanicLeadWizard({ title, body, variant = "page", onSubmitted }) {
           <input type="hidden" name="service_requested" value={serviceRequested} readOnly />
           <input type="hidden" name="issue_description" value={issueDescription} readOnly />
           <input type="hidden" name="customer_phone" value={contactPhone} readOnly />
-          <input type="hidden" name="logo_url" value={`${window.location.origin}/images/ralph-sons-logo.png`} readOnly />
+          <input type="hidden" name="logo_url" value={`${window.location.origin}/images/surgical-logo.webp`} readOnly />
           <textarea name="message" readOnly className="lead-form__hidden" value={composedEmailBody} rows={1} />
 
           {step === 1 && (
@@ -1570,14 +1549,14 @@ function SectionCard({ section, onOpenBooking, onOpenServicesPage, onOpenReviews
         </div>
         <div className="marketing-card__map-wrap">
           <iframe
-            title="Ralph and Son Auto Repair map widget"
+            title="Surgical Auto Repair map widget"
             src={SHOP_MAP_EMBED_URL}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
         <p className="marketing-card__notice">
-          <strong>Note:</strong> Ralph is no longer located at SLR Auto Repair in White Plains. Our only location is here in Fleetwood, Mount Vernon.
+          <strong>Hours:</strong> Monday – Friday, 8:00 AM – 6:00 PM. Closed Saturday &amp; Sunday.
         </p>
       </div>
     );
@@ -1601,7 +1580,7 @@ function SectionCard({ section, onOpenBooking, onOpenServicesPage, onOpenReviews
         <div className="reviews-list" aria-label="Customer reviews">
           <div className="reviews-list__top">
             <p className="reviews-list__score" aria-label={`${section.googleRating || "4.8/5"} stars`}>
-              Reviews {section.googleRating || "4.8/5"} {"★★★★☆"}
+              Reviews {section.googleRating || "4.8/5"} {"★★★★★"}
             </p>
             <div className="reviews-list__actions">
               <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="reviews-list__cta">
@@ -1862,8 +1841,8 @@ function ServicesPage({ onGoHome, onOpenBooking, onOpenReviewsPage, enableMobile
             </p>
           </div>
           <div className="services-page-view__book-total">
-            <strong>★★★★☆ 4.8/5</strong>
-            <span>320+ verified reviews</span>
+            <strong>★★★★★ 4.8/5</strong>
+            <span>363+ verified reviews</span>
           </div>
         </div>
         <div className="services-page-view__book-reviews" aria-label="Featured customer reviews">
@@ -1922,8 +1901,8 @@ function ServicesPage({ onGoHome, onOpenBooking, onOpenReviewsPage, enableMobile
         <div className="services-page-view__local-grid">
           <div className="services-page-view__map-wrap">
             <iframe
-              title="Ralph and Son Auto Repair map"
-              src="https://maps.google.com/maps?q=701%20N%20Macquesten%20Pkwy%20Mount%20Vernon%20NY%2010552&output=embed"
+              title="Surgical Auto Repair map"
+              src={SHOP_MAP_EMBED_URL}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
@@ -1962,13 +1941,13 @@ function ReviewsPage({ onGoHome, onOpenBooking }) {
             What our customers are saying
           </h1>
           <p className="services-page-view__intro">
-            Trusted feedback from local drivers who rely on Ralph & Son for honest, high-quality service.
+            Trusted feedback from local drivers who rely on Surgical Auto Repair for honest, high-quality service.
           </p>
         </div>
         <div className="reviews-page-view__meta-card">
-          <p className="reviews-page-view__score" aria-label="4.8 out of 5 stars from over 320 reviews">
-            <strong>{"★★★★☆ 4.8/5"}</strong>
-            <span>320+ verified reviews</span>
+          <p className="reviews-page-view__score" aria-label="4.8 out of 5 stars from over 363 reviews">
+            <strong>{"★★★★★ 4.8/5"}</strong>
+            <span>363+ verified reviews</span>
           </p>
           <div className="reviews-page-view__actions">
             <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="reviews-list__cta">
@@ -2014,14 +1993,14 @@ function CardsFooter({ className = "", compact = false }) {
         </div>
         <div className="cards-footer__meta">
           <div className="cards-footer__socials" aria-label="Contact links">
-            <a href="tel:9147765331" aria-label="Phone" className="social-icon">
+            <a href={SHOP_PHONE_HREF} aria-label="Phone" className="social-icon">
               <span className="social-icon__emoji" aria-hidden="true">
                 📞
               </span>
               <span className="social-icon__label">Call</span>
             </a>
             <a
-              href="https://maps.google.com/?q=701+N+Macquesten+Pkwy+Mount+Vernon+NY+10552"
+              href={SHOP_MAP_URL}
               target="_blank"
               rel="noreferrer"
               aria-label="Address"
@@ -2260,7 +2239,7 @@ export default function App() {
               setMobileMenuOpen(false);
             }}
           >
-            <img src="/images/ralph-sons-logo.svg?v=2" alt="Ralph and Son logo" className="logo__img" />
+            <img src="/images/surgical-logo.webp" alt="Surgical Auto Repair logo" className="logo__img" />
           </a>
         </div>
 
@@ -2365,19 +2344,18 @@ export default function App() {
           <div className="left-rail">
             <section className="panel panel--primary" aria-labelledby="section-1-title">
               <div className="panel__inner panel__inner--hero">
-                <p className="hero__location-pin">Fleetwood - Mount Vernon, NY</p>
+                <p className="hero__location-pin">Mount Vernon, NY</p>
                 <h1 id="section-1-title" className="hero__title">
-                  Reliable automotive care from a team that puts honesty first.
+                  Expert repairs. Fair prices. Trusted since 1995.
                 </h1>
                 <p className="hero__subtitle">
-                  Our skilled technicians handle routine maintenance, diagnostics, and major repairs with
-                  exceptional customer service and quality&nbsp;workmanship.
+                  Think of us for preventative maintenance like oil changes and scheduled services. Our ASE-certified technicians get the work done in a timely, efficient manner so you can get back on the road.
                 </p>
                 <div className="hero__actions">
                   <button type="button" className="hero__cta" onClick={openBookingModal}>
                     Book Appointment
                   </button>
-                  <a href="tel:9147765331" className="hero__cta hero__cta--secondary">
+                  <a href={SHOP_PHONE_HREF} className="hero__cta hero__cta--secondary">
                     📞 {SHOP_PHONE}
                   </a>
                 </div>
@@ -2385,8 +2363,8 @@ export default function App() {
             </section>
             <section className="hours-preview hours-preview--desktop" aria-label="Shop hours">
               <p className="hours-preview__label">Hours</p>
-              <p>Mon – Fri: 8 AM – 5:30 PM</p>
-              <p>Saturday: 8 AM – 2 PM</p>
+              <p>Mon – Fri: 8 AM – 6 PM</p>
+              <p>Saturday: Closed</p>
               <p>Sunday: Closed</p>
             </section>
             <CardsFooter className="cards-footer--desktop" />
