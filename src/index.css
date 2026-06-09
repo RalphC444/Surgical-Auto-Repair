@@ -3507,3 +3507,216 @@ a {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ============================================================
+   TEMP — Layout switcher (kebab, top-right).
+   ============================================================ */
+.layout-switcher {
+  position: fixed;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 9000;
+}
+.layout-switcher__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: var(--secondary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(13, 25, 48, 0.35);
+}
+.layout-switcher__btn:hover { background: #142243; }
+.layout-switcher__overlay { position: fixed; inset: 0; z-index: 0; }
+.layout-switcher__menu {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  z-index: 1;
+  width: 230px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(13, 25, 48, 0.22);
+  padding: 0.4rem;
+}
+.layout-switcher__heading {
+  margin: 0.25rem 0.5rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.layout-switcher__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.6rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text);
+}
+.layout-switcher__item:hover { background: var(--surface); }
+.layout-switcher__item.is-active { background: var(--secondary); color: #fff; }
+.layout-switcher__item-label { font-size: 0.9rem; font-weight: 600; }
+.layout-switcher__item-hint { font-size: 0.72rem; opacity: 0.7; }
+
+/* Full-bleed wrapper for layouts 2 & 3 */
+.layout--full { max-width: none; padding: 0; gap: 0; }
+
+/* ============================================================
+   LAYOUT 2 — "Luxury & Sport cars"  (.home-v2)
+   ============================================================ */
+.home-v2 { --lux-dark: #0d1930; --lux-dark-2: #142243; color: var(--text); font-size: 16px; }
+.home-v2 .lux-eyebrow { margin: 0 0 0.75rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--primary); }
+.home-v2 .lux-eyebrow--dark { color: var(--secondary); }
+
+.lux-hero { position: relative; min-height: 78vh; display: flex; flex-direction: column; justify-content: center; padding: 5rem 1.5rem 0; overflow: hidden; background: var(--lux-dark); }
+.lux-hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.45; }
+.lux-hero__overlay { position: absolute; inset: 0; background: linear-gradient(105deg, rgba(13,25,48,0.95) 25%, rgba(13,25,48,0.55) 65%, rgba(13,25,48,0.85)); }
+.lux-hero__inner { position: relative; max-width: 1100px; margin: 0 auto; width: 100%; }
+.lux-hero__title { margin: 0 0 1rem; font-size: clamp(2.4rem, 6vw, 4.5rem); line-height: 1.02; font-weight: 800; letter-spacing: -0.02em; color: #fff; max-width: 16ch; }
+.lux-hero__subtitle { margin: 0 0 2rem; font-size: clamp(1rem, 1.6vw, 1.2rem); color: #cdd7ec; max-width: 52ch; }
+.lux-hero__actions { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+.lux-stats { position: relative; max-width: 1100px; margin: 3.5rem auto 0; width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.15); }
+.lux-stat { display: flex; flex-direction: column; gap: 0.15rem; }
+.lux-stat strong { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; color: var(--primary); }
+.lux-stat span { font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase; color: #aab8d4; }
+
+.lux-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.85rem 1.6rem; border-radius: 999px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s ease, background 0.15s ease; }
+.lux-btn:hover { transform: translateY(-1px); }
+.lux-btn--gold { background: var(--primary); color: var(--lux-dark); }
+.lux-btn--gold:hover { background: var(--primary-hover); }
+.lux-btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,0.55); }
+.lux-btn--ghost:hover { background: rgba(255,255,255,0.1); }
+.lux-btn--dark { background: var(--secondary); color: #fff; }
+.lux-btn--outline-dark { background: transparent; color: var(--secondary); border-color: var(--secondary); }
+.lux-btn--outline-dark:hover { background: var(--secondary); color: #fff; }
+
+.lux-section { max-width: 1100px; margin: 0 auto; padding: 4.5rem 1.5rem; }
+.lux-section__head { margin-bottom: 2.5rem; }
+.lux-section__title { margin: 0; font-size: clamp(1.7rem, 3.5vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; color: var(--text); max-width: 18ch; }
+.lux-section__cta { margin-top: 2.5rem; }
+
+.lux-services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.lux-service-card { background: var(--lux-dark); border-radius: 16px; padding: 1.75rem 1.5rem; color: #fff; border: 1px solid var(--lux-dark-2); transition: transform 0.18s ease, border-color 0.18s ease; }
+.lux-service-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+.lux-service-card h3 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+.lux-service-card__price { margin: 0 0 1rem; font-size: 0.85rem; font-weight: 700; color: var(--primary); }
+.lux-service-card ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; color: #c5d0e6; font-size: 0.9rem; }
+
+.lux-feature { display: grid; grid-template-columns: 1fr 1fr; gap: 0; align-items: stretch; background: var(--lux-dark); color: #fff; }
+.lux-feature__media { min-height: 380px; }
+.lux-feature__media img { width: 100%; height: 100%; object-fit: cover; }
+.lux-feature__body { padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; }
+.lux-feature__body .lux-section__title { color: #fff; }
+.lux-feature__body .lux-eyebrow--dark { color: var(--primary); }
+.lux-feature__copy { margin: 1rem 0 2rem; color: #c5d0e6; max-width: 48ch; }
+.lux-feature__body .lux-btn { align-self: flex-start; }
+
+.lux-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.lux-gallery__item { height: 280px; overflow: hidden; }
+.lux-gallery__item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.lux-gallery__item:hover img { transform: scale(1.06); }
+
+.lux-band { background: var(--secondary); color: #fff; text-align: center; }
+.lux-band__inner { max-width: 700px; margin: 0 auto; padding: 4rem 1.5rem; }
+.lux-band__inner h2 { margin: 0 0 0.5rem; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; }
+.lux-band__inner p { margin: 0 0 1.75rem; color: #cdd7ec; }
+
+.cards-footer--lux { max-width: 1100px; margin: 0 auto; }
+
+@media (max-width: 900px) {
+  .lux-services { grid-template-columns: 1fr 1fr; }
+  .lux-feature { grid-template-columns: 1fr; }
+  .lux-feature__media { min-height: 260px; }
+  .lux-feature__body { padding: 2.5rem 1.5rem; }
+  .lux-gallery { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .lux-stats { grid-template-columns: repeat(2, 1fr); }
+  .lux-services, .lux-gallery { grid-template-columns: 1fr; }
+  .lux-gallery__item { height: 220px; }
+  .lux-hero { min-height: 70vh; padding-top: 4rem; }
+}
+
+/* ============================================================
+   LAYOUT 3 — "Traditional mechanic shop"  (.home-v3)
+   ============================================================ */
+.home-v3 { color: var(--text); }
+
+.trad-hero { position: relative; min-height: 460px; display: flex; align-items: center; padding: 3rem 1.5rem; overflow: hidden; background: var(--secondary); }
+.trad-hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; }
+.trad-hero__overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(26,45,133,0.92), rgba(26,45,133,0.6)); }
+.trad-hero__inner { position: relative; max-width: 1140px; margin: 0 auto; width: 100%; }
+.trad-hero__pin { margin: 0 0 0.6rem; color: var(--primary); font-weight: 700; }
+.trad-hero__title { margin: 0 0 1rem; font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 800; color: #fff; max-width: 20ch; line-height: 1.08; }
+.trad-hero__subtitle { margin: 0 0 1.75rem; font-size: 1.05rem; color: #dbe2f5; max-width: 54ch; }
+.trad-hero__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+
+.trad-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.8rem 1.5rem; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border: 2px solid transparent; }
+.trad-btn--primary { background: var(--primary); color: var(--text); }
+.trad-btn--primary:hover { background: var(--primary-hover); }
+.trad-btn--secondary { background: #fff; color: var(--secondary); }
+.trad-btn--outline { background: transparent; color: var(--secondary); border-color: var(--secondary); }
+.trad-btn--outline:hover { background: var(--secondary); color: #fff; }
+
+.trad-hours-bar { background: var(--text); color: #dbe2f5; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 2rem; padding: 0.85rem 1.5rem; font-size: 0.88rem; }
+.trad-hours-bar strong { color: var(--primary); }
+
+.trad-section { max-width: 1140px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center; }
+.trad-section__head { margin-bottom: 2.5rem; }
+.trad-section__title { margin: 0 0 0.5rem; font-size: clamp(1.7rem, 3.2vw, 2.3rem); font-weight: 800; color: var(--secondary); }
+.trad-section__sub { margin: 0; color: var(--muted); font-size: 1.02rem; }
+.trad-section__cta { margin-top: 2.5rem; }
+
+.trad-services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+.trad-service { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.75rem 1.25rem; text-align: center; transition: box-shadow 0.18s ease, transform 0.18s ease; }
+.trad-service:hover { box-shadow: 0 8px 22px rgba(13,25,48,0.12); transform: translateY(-3px); }
+.trad-service__icon { font-size: 2rem; display: block; margin-bottom: 0.6rem; }
+.trad-service h3 { margin: 0 0 0.4rem; font-size: 1.05rem; color: var(--secondary); }
+.trad-service p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+
+.trad-about { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 0; align-items: center; max-width: none; }
+.trad-about__media { min-height: 340px; height: 100%; }
+.trad-about__media img { width: 100%; height: 100%; object-fit: cover; }
+.trad-about__body { padding: 3.5rem 3rem; }
+.trad-about__body .trad-section__title { text-align: left; }
+.trad-about__body > p { margin: 0 0 1.25rem; color: var(--muted); font-size: 1.02rem; }
+.trad-about__list { margin: 0 0 1.75rem; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.trad-about__list li { position: relative; padding-left: 1.6rem; color: var(--text); }
+.trad-about__list li::before { content: "✓"; position: absolute; left: 0; color: var(--accent-green); font-weight: 800; }
+
+.trad-contact { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--surface); color: var(--text); }
+.trad-contact__info { padding: 3.5rem 3rem; background: var(--secondary); color: #fff; }
+.trad-contact__info .trad-section__title { color: #fff; text-align: left; }
+.trad-contact__line { margin: 0 0 0.5rem; color: #dbe2f5; }
+.trad-contact__line a { color: var(--primary); font-weight: 700; }
+.trad-contact__label { margin: 1.5rem 0 0.5rem; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+.trad-contact__areas { margin: 0 0 1.75rem; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; }
+.trad-contact__areas li { background: rgba(255,255,255,0.15); border-radius: 6px; padding: 0.25rem 0.65rem; font-size: 0.82rem; }
+.trad-contact__map { height: 480px; }
+.trad-contact__map iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+.cards-footer--trad { max-width: 1140px; margin: 0 auto; }
+
+@media (max-width: 900px) {
+  .trad-services { grid-template-columns: repeat(2, 1fr); }
+  .trad-about, .trad-contact { grid-template-columns: 1fr; }
+  .trad-about__media { min-height: 240px; }
+  .trad-about__body, .trad-contact__info { padding: 2.5rem 1.5rem; }
+  .trad-contact__map { height: 320px; }
+}
+@media (max-width: 560px) {
+  .trad-services { grid-template-columns: 1fr; }
+}
