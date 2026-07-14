@@ -4,3 +4,15 @@ dist
 *.local
 .env
 .local-bookings.json
+
+# build artifact (large) + local Netlify CLI state
+deploy.zip
+.netlify
+
+# unused large video assets (only hero-layout3 is referenced by the site)
+public/videos/hero-layout1.mp4
+public/videos/hero-layout2.mp4
+public/videos/sample-video.mp4
+
+# debug endpoint — would expose env-var previews (tokens/keys) if deployed
+netlify/functions/debug-env.js

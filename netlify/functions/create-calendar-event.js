@@ -14,16 +14,15 @@ exports.handler = async (event) => {
   }
 
   const {
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    GOOGLE_REFRESH_TOKEN,
-    GOOGLE_CALENDAR_ID, // optional — falls back to "primary"
+    GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+    GOOGLE_CALENDAR_ID,
   } = process.env;
 
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) {
+  if (!GOOGLE_SERVICE_ACCOUNT_EMAIL || !GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY) {
     return respond(500, {
       error:
-        "Google Calendar not configured. Required env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN. (GOOGLE_CALENDAR_ID is optional and defaults to 'primary'.)",
+        "Google Calendar not configured. Set GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY in Netlify environment variables.",
     });
   }
 
@@ -50,14 +49,10 @@ exports.handler = async (event) => {
 
   if (!dateKey || !timeValue || !contactName) {
     return respond(400, {
-      error: "Missing required fields: dateKey (YYYY-MM-DD), timeValue (HH:MM), contactName",
+      error: "Missing required fields: dateKey, timeValue, contactName",
     });
   }
 
-  // Build ISO strings DIRECTLY from user input — no Date math, no server-timezone
-  // dependency. Google interprets these strings in the timeZone we pass alongside.
-  // dateKey:   "2026-05-21"
-  // timeValue: "13:00"
   const [hourStr, minuteStr] = timeValue.split(":");
   const hour = Number(hourStr);
   const minute = Number(minuteStr);
@@ -67,8 +62,7 @@ exports.handler = async (event) => {
 
   const pad = (n) => String(n).padStart(2, "0");
   const startISO = `${dateKey}T${pad(hour)}:${pad(minute)}:00`;
-  const endHour = hour + APPT_DURATION_HOURS; // 1-hour appointment, never crosses midnight given shop hours
-  const endISO = `${dateKey}T${pad(endHour)}:${pad(minute)}:00`;
+  const endISO = `${dateKey}T${pad(hour + APPT_DURATION_HOURS)}:${pad(minute)}:00`;
 
   const descriptionLines = [
     `Customer: ${contactName}`,
@@ -85,52 +79,43 @@ exports.handler = async (event) => {
   const calendarId = GOOGLE_CALENDAR_ID || "primary";
 
   try {
-    const auth = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);
-    auth.setCredentials({ refresh_token: GOOGLE_REFRESH_TOKEN });
+    const privateKey = GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, "\n");
+
+    const auth = new google.auth.JWT({
+      email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: privateKey,
+      scopes: ["https://www.googleapis.com/auth/calendar"],
+    });
 
     const calendar = google.calendar({ version: "v3", auth });
 
-    const calendarEvent = {
-      summary: `${contactName} — ${serviceRequested || "Appointment"}`,
-      description: descriptionLines,
-      location: SHOP_ADDRESS,
-      start: { dateTime: startISO, timeZone: TIMEZONE },
-      end: { dateTime: endISO, timeZone: TIMEZONE },
-      reminders: {
-        useDefault: false,
-        overrides: [
-          { method: "email", minutes: 24 * 60 },
-          { method: "popup", minutes: 60 },
-        ],
-      },
-    };
-
     const result = await calendar.events.insert({
       calendarId,
-      requestBody: calendarEvent,
+      requestBody: {
+        summary: `${contactName} — ${serviceRequested || "Appointment"}`,
+        description: descriptionLines,
+        location: SHOP_ADDRESS,
+        start: { dateTime: startISO, timeZone: TIMEZONE },
+        end: { dateTime: endISO, timeZone: TIMEZONE },
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: "email", minutes: 24 * 60 },
+            { method: "popup", minutes: 60 },
+          ],
+        },
+      },
     });
 
     return respond(200, {
       success: true,
       eventId: result.data.id,
       htmlLink: result.data.htmlLink,
-      calendarId,
-      start: startISO,
-      end: endISO,
     });
   } catch (err) {
-    // Surface as much detail as Google gives us — this is what makes debugging possible
-    const googleDetail =
-      err?.response?.data?.error ||
-      err?.errors ||
-      err?.message ||
-      String(err);
-    console.error("Google Calendar API error:", JSON.stringify(googleDetail, null, 2));
-    return respond(500, {
-      error: "Failed to create calendar event",
-      detail: googleDetail,
-      calendarId,
-    });
+    const detail = err?.response?.data?.error || err?.message || String(err);
+    console.error("Google Calendar API error:", JSON.stringify(detail, null, 2));
+    return respond(500, { error: "Failed to create calendar event", detail });
   }
 };
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
+import { openStoreCal } from "./storecal";
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY ?? "";
 const OR_MODELS = [
@@ -11,9 +12,9 @@ const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID ?? "";
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID ?? "";
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY ?? "";
 
-const SHOP_NAME = "Ralph & Son Auto Repair";
-const SHOP_PHONE = "(914) 776-5331";
-const SHOP_ADDRESS = "701 N Macquesten Pkwy, Mount Vernon, NY 10552";
+const SHOP_NAME = "Surgical Auto Repair";
+const SHOP_PHONE = "(914) 665-3770";
+const SHOP_ADDRESS = "40 N Macquesten Pkwy, Mount Vernon, NY 10550";
 
 const CHAT_SERVICES = [
   "NY State Inspection",
@@ -54,13 +55,10 @@ function buildSlots(endMinutes) {
   return slots;
 }
 
-const WEEKDAY_SLOTS = buildSlots(17 * 60 + 30);
-const SATURDAY_SLOTS = buildSlots(14 * 60);
+const WEEKDAY_SLOTS = buildSlots(18 * 60);
 
 function slotsForKey(key) {
-  if (!key) return WEEKDAY_SLOTS;
-  const [y, m, d] = key.split("-").map(Number);
-  return new Date(y, m - 1, d).getDay() === 6 ? SATURDAY_SLOTS : WEEKDAY_SLOTS;
+  return WEEKDAY_SLOTS;
 }
 
 function toDateKey(d) {
@@ -86,7 +84,7 @@ async function fetchAvailableDays() {
   for (let i = 0; i < 28 && candidates.length < 12; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() + i);
-    if (d.getDay() === 0) continue;
+    if (d.getDay() === 0 || d.getDay() === 6) continue;
     candidates.push({ d, key: toDateKey(d) });
   }
 
@@ -141,11 +139,11 @@ async function fetchAvailableSlots(key) {
 const SHOP_CTA_ACTIONS = ["Book an appointment", `Call ${SHOP_PHONE}`];
 
 const SYSTEM_PROMPT = `You are a customer service assistant ONLY for ${SHOP_NAME}. Answer in 1–2 sentences maximum. Be direct and friendly.
-Location: ${SHOP_ADDRESS} | Phone: ${SHOP_PHONE} | Hours: Mon–Fri 8 AM–5:30 PM, Sat 8 AM–2 PM, Sun Closed
-Services: NY State Inspection ($37+), Oil Change, Brake Repair, Engine Diagnostics, Suspension, Battery, Cooling, Transmission, A/C & Heating, Exhaust — free estimates.
+Location: ${SHOP_ADDRESS} | Phone: ${SHOP_PHONE} | Hours: Mon–Fri 8 AM–6 PM, Sat & Sun Closed
+Services: Oil Change & Scheduled Maintenance, Brakes, Check Engine Light, Air Conditioning, Exhaust System & Mufflers, Suspension, Transmission Service, Timing Belts, Tire Sales, Power Windows & Doors — free estimates.
 Rules:
 - ONLY answer questions about this shop, its services, appointments, vehicles, or car repair in general.
-- If the user asks about ANYTHING else (sports, news, coding, jokes, general knowledge, other businesses, etc.) respond with exactly: "I'm only set up to help with Ralph & Son Auto Repair — would you like to book an appointment or give us a call?"
+- If the user asks about ANYTHING else (sports, news, coding, jokes, general knowledge, other businesses, etc.) respond with exactly: "I'm only set up to help with Surgical Auto Repair — would you like to book an appointment or give us a call?"
 - Never invent prices. Never tell them to call — buttons for booking and calling are shown automatically after every reply.`;
 
 // Returns a time-aware "call us" message based on Eastern Time shop hours
@@ -155,8 +153,7 @@ function getCallPrompt() {
   const mins = etNow.getHours() * 60 + etNow.getMinutes();
 
   const isOpen =
-    (day >= 1 && day <= 5 && mins >= 480 && mins < 1050) || // Mon–Fri 8–5:30
-    (day === 6 && mins >= 480 && mins < 840);                // Sat 8–2
+    (day >= 1 && day <= 5 && mins >= 480 && mins < 1080); // Mon–Fri 8–6
 
   if (isOpen) {
     return `Give us a call right now at ${SHOP_PHONE} — we're open!`;
@@ -168,8 +165,8 @@ function getCallPrompt() {
   else if (day >= 1 && day <= 4 && mins < 480)  nextOpen = `today at 8 AM`;
   else if (day >= 1 && day <= 4)        nextOpen = `${DAY[day + 1]} at 8 AM`;
   else if (day === 5 && mins < 480)     nextOpen = `today at 8 AM`;
-  else if (day === 5)                   nextOpen = `Saturday at 8 AM`;
-  else if (day === 6 && mins < 480)     nextOpen = `today at 8 AM`;
+  else if (day === 5)                   nextOpen = `Monday at 8 AM`;
+  else if (day === 6)                   nextOpen = `Monday at 8 AM`;
   else                                  nextOpen = `Monday at 8 AM`;
 
   return `We're currently closed — give us a call ${nextOpen} at ${SHOP_PHONE}.`;
@@ -185,10 +182,10 @@ function localAnswer(text) {
     return { content: getCallPrompt() };
   }
   if (/\b(hour|open|close|when|time.*open|open.*time|saturday|sunday|weekend)\b/.test(t)) {
-    return { content: "Mon–Fri 8 AM – 5:30 PM · Sat 8 AM – 2 PM · Closed Sundays." };
+    return { content: "Mon–Fri 8 AM – 6 PM · Closed Saturday & Sunday." };
   }
   if (/\b(where|location|address|direction|map|find|nearby|near)\b/.test(t)) {
-    return { content: "701 N Macquesten Pkwy, Mount Vernon, NY 10552 — near Fleetwood Train Station." };
+    return { content: "40 N Macquesten Pkwy, Mount Vernon, NY 10550." };
   }
   if (/\b(phone|number|contact|reach)\b/.test(t)) {
     return { content: `Call us at ${SHOP_PHONE} during business hours.` };
@@ -232,8 +229,8 @@ function localAnswer(text) {
       actions: [VIEW_SERVICES_ACTION],
     };
   }
-  if (/\b(ralph|owner|who|about|team|mechanic|technician)\b/.test(t)) {
-    return { content: "Ralph has run this shop for 40+ years on trust and transparency. No surprise charges, ever." };
+  if (/\b(owner|who|about|team|mechanic|technician|sandra|donald)\b/.test(t)) {
+    return { content: "Surgical Auto Repair has been serving Mount Vernon since 1995 — ASE-certified techs, honest prices, no surprises." };
   }
   if (/\b(review|rating|reputation|google|stars|recommend)\b/.test(t)) {
     return { content: "4.8/5 on Google — decades of loyal customers across Mount Vernon and surrounding communities." };
@@ -290,7 +287,7 @@ const INIT_MESSAGES = [
   {
     id: mkId(),
     role: "assistant",
-    content: "Hi! Ask me anything about Ralph & Son Auto Repair, or book an appointment fast right here.",
+    content: "Hi! Ask me anything about Surgical Auto Repair, or book an appointment fast right here.",
     actions: ["Book an appointment", "Services & hours"],
   },
 ];
@@ -396,7 +393,7 @@ function ChatMessage({ msg, onAction, onServiceSelect, onVehicleSubmit, onDateSe
   const isUser = msg.role === "user";
   return (
     <div className={`cwt-msg ${isUser ? "cwt-msg--user" : "cwt-msg--bot"}`}>
-      {!isUser && <span className="cwt-avatar" aria-hidden="true">R&amp;S</span>}
+      {!isUser && <span className="cwt-avatar" aria-hidden="true">SA</span>}
       <div className="cwt-bubble">
         {msg.content && <p className="cwt-text">{msg.content}</p>}
         {msg.streaming && !msg.content && <TypingDots />}
@@ -424,8 +421,7 @@ function ChatMessage({ msg, onAction, onServiceSelect, onVehicleSubmit, onDateSe
 }
 
 export default function ChatWidget({ bookingModalOpen = false }) {
-  // Start collapsed on mobile (viewport width < 640px)
-  const [isOpen, setIsOpen] = useState(() => window.innerWidth >= 640);
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState(INIT_MESSAGES);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -543,11 +539,12 @@ export default function ChatWidget({ bookingModalOpen = false }) {
   }, []);
 
   // ── Booking flow ─────────────────────────────────────────────────────────
+  // Booking is handled by the StoreCal widget (embed.js). Collapse the chat and
+  // hand off so there's a single booking system site-wide.
   const startBooking = useCallback(() => {
-    addMsg({ role: "user", content: "I'd like to book an appointment" });
-    addMsg({ role: "assistant", content: "Great! What service do you need?", bookingUI: "service" });
-    setBooking({ phase: "service" });
-  }, [addMsg]);
+    setIsOpen(false);
+    openStoreCal();
+  }, []);
 
   const handleServiceSelect = useCallback((service) => {
     addMsg({ role: "user", content: service });
@@ -564,7 +561,7 @@ export default function ChatWidget({ bookingModalOpen = false }) {
       if (!days.length) {
         patchLastWithUI("date_loading", {
           bookingUI: null,
-          content: "No open days found in the next few weeks. Please call us at (914) 776-5331.",
+          content: "No open days found in the next few weeks. Please call us at (914) 665-3770.",
         });
         setBooking(null);
         return;
@@ -654,7 +651,7 @@ export default function ChatWidget({ bookingModalOpen = false }) {
             `Phone: ${phone}`,
             `Email: ${email}`,
           ].join("\n"),
-          logo_url: `${window.location.origin}/images/ralph-sons-logo.png`,
+          logo_url: `${window.location.origin}/images/surgical-logo.webp`,
         });
       }
 
@@ -693,7 +690,7 @@ export default function ChatWidget({ bookingModalOpen = false }) {
     } catch {
       patchLastWithUI("submitting", {
         bookingUI: null,
-        content: "Something went wrong — please call us at (914) 776-5331 to confirm.",
+        content: "Something went wrong — please call us at (914) 665-3770 to confirm.",
       });
       setBooking(null);
     }
@@ -733,7 +730,7 @@ export default function ChatWidget({ bookingModalOpen = false }) {
       addMsg({ role: "user", content: "What services do you offer and what are your hours?" });
       addMsg({
         role: "assistant",
-        content: "We offer inspections, oil changes, brakes, diagnostics, A/C, transmission, suspension & more. Free estimates on all.\n\nMon–Fri 8 AM–5:30 PM · Sat 8 AM–2 PM · Sun Closed",
+        content: "We offer oil changes, brakes, diagnostics, A/C, transmission, suspension, tires & more. Free estimates on all.\n\nMon–Fri 8 AM–6 PM · Closed Saturday & Sunday",
         actions: [VIEW_SERVICES_ACTION],
       });
     } else if (action === VIEW_SERVICES_ACTION) {
@@ -751,12 +748,12 @@ export default function ChatWidget({ bookingModalOpen = false }) {
   return (
     <>
       {isOpen && (
-        <div className="cwt" role="dialog" aria-label="Chat with Ralph & Son">
+        <div className="cwt" role="dialog" aria-label="Chat with Surgical Auto Repair">
           <div className="cwt__header">
             <div className="cwt__header-left">
-              <span className="cwt__avatar-sm" aria-hidden="true">R&amp;S</span>
+              <span className="cwt__avatar-sm" aria-hidden="true">SA</span>
               <div>
-                <p className="cwt__shop-name">Ralph and Son Auto</p>
+                <p className="cwt__shop-name">Surgical Auto Repair</p>
                 <p className="cwt__online">● Online now</p>
               </div>
             </div>

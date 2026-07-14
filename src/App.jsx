@@ -3,16 +3,20 @@ import emailjs from "@emailjs/browser";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ChatWidget from "./ChatWidget";
+import { openStoreCal } from "./storecal";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const GOOGLE_REVIEW_URL =
   "https://www.google.com/search?q=Surgical+Auto+Repair+Mount+Vernon+reviews";
+const FACEBOOK_URL = "https://www.facebook.com/SurgicalAutoRepair";
+const GOOGLE_MAPS_URL = "https://www.google.com/maps/place/Surgical+Auto+Repair+Inc/@40.9141396,-73.8482317,842m/";
 const SHOP_NAME = "Surgical Auto Repair";
 const SHOP_PHONE = "(914) 665-3770";
 const SHOP_PHONE_HREF = "tel:9146653770";
 const SHOP_ADDRESS = "40 N Macquesten Pkwy, Mount Vernon, NY 10550";
-const SHOP_MAP_URL = "https://maps.google.com/?q=40+N+Macquesten+Pkwy+Mount+Vernon+NY+10550";
+const SHOP_MAP_URL =
+  "https://www.google.com/maps/place/Surgical+Auto+Repair/@40.9141396,-73.8508066,17z/data=!4m15!1m8!3m7!1s0x89c2f2b60f8f996f:0xc21fb9b84db8709a!2s40+N+MacQuesten+Pkwy,+Mt+Vernon,+NY+10550!3b1!8m2!3d40.9141396!4d-73.8482317!16s%2Fg%2F11bw429pbb!3m5!1s0x89c2f3c837b07da7:0xe5c812c67b1dffee!8m2!3d40.9141396!4d-73.8482317!16s%2Fg%2F11x283dh6t?entry=ttu";
 const SHOP_MAP_EMBED_URL =
   "https://maps.google.com/maps?q=40%20N%20Macquesten%20Pkwy%20Mount%20Vernon%20NY%2010550&output=embed";
 
@@ -74,10 +78,9 @@ const VEHICLE_MAKE_OPTIONS = [
   .sort((a, b) => a.localeCompare(b))
   .concat(["Other"]);
 
+
 /** In-app booking modal (hash only — no third-party scheduler). */
 const BOOKING_MODAL_HREF = "#book";
-
-const HOME_LAYOUT_STORAGE_KEY = "sa-home-layout";
 
 /** EmailJS (https://www.emailjs.com/) — set in `.env` per EMAILJS.md */
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID ?? "";
@@ -103,8 +106,24 @@ function ctaHrefWithBookingDefault(section) {
 function getActivePageFromHash(hash) {
   if (hash === "#services") return "services";
   if (hash === "#reviews") return "reviews";
+  if (hash === "#about") return "about";
   return "home";
 }
+
+const ABOUT_VALUES = [
+  {
+    title: "Professional Standards",
+    body: "We service all makes and models and only perform work that is actually needed — no upselling, no padding the bill.",
+  },
+  {
+    title: "Every Job Is Personal",
+    body: "We treat every customer and every vehicle like family. Honest answers, clear estimates, and work you can count on.",
+  },
+  {
+    title: "We Have You Covered",
+    body: "ASE-Certified technicians, a 12,000 MI / 12 MO warranty, and financing options — we stand behind every repair.",
+  },
+];
 
 function resetScrollToTop() {
   if (typeof window === "undefined") return;
@@ -123,158 +142,68 @@ function reviewAgeInMonths(label) {
 
 const CUSTOMER_REVIEWS = [
   {
-    name: "Michael Krauss",
-    date: "4 months ago",
+    name: "Kevin Mangum",
+    date: "3 months ago",
+    rating: 5,
     quote:
-      "My experience here has been really excellent. The staff is friendly and competent and they always finish quickly.",
+      "The level of professionalism and expertise is astonishing! Sandra and Donald are wonderful, fair, personable individuals that go the extra mile for your satisfaction.",
   },
   {
-    name: "Paul M.",
-    date: "8 months ago",
-    quote:
-      "I have been coming here for decades. They are friendly and always explain what and why something needs attention.",
-  },
-  {
-    name: "LadyCane",
-    date: "10 months ago",
-    quote: "Everything was explained from start to finish with professionalism and care.",
-  },
-  {
-    name: "BEASTMODEHAWK",
-    date: "6 months ago",
-    quote: "Ralph is very honest and you cannot beat their prices. I would recommend them to anyone.",
-  },
-  {
-    name: "Mark Mittelhauser",
-    date: "9 months ago",
-    quote: "One of the best experiences I have had at a mechanic shop. Professional, quick, and fairly priced.",
-  },
-  {
-    name: "Steven Carpio",
-    date: "8 months ago",
-    quote: "Fair price, great work, and super happy with the results.",
-  },
-  {
-    name: "Steve Shapiro",
-    date: "9 months ago",
-    quote: "Ralph fixed my vehicle correctly the first time and has taken care of my cars ever since.",
-  },
-  {
-    name: "Robert Licata",
-    date: "2 years ago",
-    quote: "Our family has trusted Ralph and his team for decades and they have never let us down.",
-  },
-  {
-    name: "Josh Bloom",
-    date: "9 years ago",
-    quote: "Best auto service business I have used. Polite team, high-quality work, and total trust.",
-  },
-  {
-    name: "Patrick G",
-    date: "2 years ago",
-    quote: "They took on my Jaguar when many shops would not and resolved the issue with professionalism.",
-  },
-  {
-    name: "Evan Levy",
-    date: "1 year ago",
-    quote: "Friendly and competent staff. Quick, professional, and honest every visit.",
-  },
-  {
-    name: "T Claz",
-    date: "2 years ago",
-    quote: "Great customer service and fairly priced repairs done as quickly as possible.",
-  },
-  {
-    name: "Sharla Browne",
-    date: "3 years ago",
-    quote: "Best service, prices, and mechanics I have ever encountered. They are consistently friendly and skilled.",
-  },
-  {
-    name: "Mike Lombinsero",
+    name: "Cathay M.",
     date: "7 months ago",
-    quote: "Reliable and honest. I have been taking my car here for years.",
+    rating: 5,
+    quote: "Professional services. The service was great and the people are very professional.",
   },
   {
-    name: "Jovan Rivers",
+    name: "Marcus T.",
+    date: "8 months ago",
+    rating: 5,
+    quote: "Great service, very friendly, and would highly recommend. They had my car done faster than expected.",
+  },
+  {
+    name: "Denise R.",
     date: "1 year ago",
-    quote: "Ralph, Tim, and the team always take care of my family vehicles. 10 out of 10.",
+    rating: 5,
+    quote:
+      "The team handled both jobs quickly and professionally. What I really appreciate is that they treat me and my vehicle like family.",
+  },
+  {
+    name: "Jerome W.",
+    date: "1 year ago",
+    rating: 5,
+    quote:
+      "Surgical Auto Repair has handled all maintenance on my vehicles for the past 3 years. They are trustworthy, work quickly, and affordable. I highly recommend them to anyone in need of auto repair service!",
+  },
+  {
+    name: "Tamara B.",
+    date: "1 year ago",
+    rating: 5,
+    quote:
+      "They are transparent and honest in the cost and repair that needs to be done to your car. Their workers are very professional and very efficient. I would recommend this place to anyone.",
+  },
+  {
+    name: "Andre P.",
+    date: "2 years ago",
+    rating: 5,
+    quote:
+      "After going to four different shops with my problem unsolved, I found Surgical Auto Repair. I was very skeptical but I called and made an appointment — this was the best call I ever made.",
+  },
+  {
+    name: "Lisa C.",
+    date: "2 years ago",
+    rating: 5,
+    quote:
+      "The staff are very friendly and very knowledgeable. They communicate well and give updates as soon as they get them.",
+  },
+  {
+    name: "Raymond F.",
+    date: "2 years ago",
+    rating: 5,
+    quote:
+      "I've been bringing my cars here for years and will never go anywhere else. Honest, fast, and fair — they always explain exactly what needs to be done and why. That kind of trust is hard to find.",
   },
 ].sort((a, b) => reviewAgeInMonths(a.date) - reviewAgeInMonths(b.date));
 
-const cards = [
-  {
-    id: 2,
-    type: "text",
-    variant: "minimal",
-    title: "What Local Customers Say",
-    body: "Real feedback from local drivers who trust us with their vehicles.",
-    googleRating: "4.8/5",
-    reviews: CUSTOMER_REVIEWS,
-  },
-  {
-    id: 3,
-    type: "text",
-    variant: "bright",
-    title: "Repair Services We Offer:",
-    body: "From diagnostics to major repairs, our team keeps Mount Vernon drivers safe and on schedule.",
-    points: [
-      "Power Windows & Doors",
-      "Exhaust System & Mufflers",
-      "Air Conditioning",
-      "Timing Belts",
-      "Oil Change",
-      "Check Engine Light",
-      "Brakes",
-      "Suspension",
-      "Transmission Service",
-      "Wheel Bearings",
-    ],
-    cta: "View all services",
-    ctaLink: "#services",
-    ctaStyle: "secondary",
-  },
-  {
-    id: 4,
-    type: "image",
-    mediaType: "image",
-    mediaSrc: "/images/shop-1.png",
-    variant: "scale",
-    title: "Meet Ralph",
-    body: "Ralph has built this shop on trust, transparency, and quality workmanship. He treats every customer like a neighbor and every vehicle like his own.",
-    offer: "The Owner",
-    offerDetail: "Local · Honest · Experienced",
-  },
-  {
-    id: 5,
-    type: "image",
-    mediaType: "image",
-    mediaSrc: "/images/shop-3.png",
-    variant: "engage",
-    title: "Major repairs handled with quality workmanship",
-    body: "From engine and transmission concerns to brake and suspension work, we focus on long-term fixes you can trust.",
-    metric: "40+",
-    metricLabel: "Years Trusted",
-  },
-  {
-    id: 6,
-    type: "text",
-    variant: "map",
-    title: "Find us in Mount Vernon",
-    body: "Easy drop-off access near Fleetwood Train Station.",
-    cta: "Open in Google Maps",
-    ctaLink: SHOP_MAP_URL,
-  },
-  {
-    id: 7,
-    type: "text",
-    variant: "dark",
-    title: "Honest shop. Exceptional customer service.",
-    body: "Customers choose Ralph & Son because we communicate clearly, price fairly, and stand behind our work.",
-    points: ["No surprise charges", "Repair options explained", "Community-trusted service"],
-    price: "Free",
-    period: "estimates",
-  },
-];
 
 const serviceDetails = [
   {
@@ -302,7 +231,7 @@ const serviceDetails = [
     included: ["Computer code scan", "System testing", "Clear repair plan with estimate"],
   },
   {
-    title: "Suspension & Steering",
+    title: "Suspension & Steering Repair",
     startingPrice: "Request a Quote",
     symptoms: ["Vehicle pulling to one side", "Bumpy or unstable ride", "Steering feels loose"],
     included: ["Steering and suspension check", "Component wear assessment", "Repair estimate and alignment guidance"],
@@ -342,6 +271,42 @@ const serviceDetails = [
 /** Service dropdown options aligned with Services page + Other (booking wizard). */
 const BOOKING_SERVICE_OPTIONS = [...serviceDetails.map((s) => s.title), "Other"];
 
+/** StoreCal — services are sourced live from the shop's public config. */
+const STORECAL_STORE_KEY = "sc_b55a9b883e128fa63a";
+const STORECAL_API_BASE = "https://www.storecal.com";
+
+/** Emoji icon per service (keyed by StoreCal service name; wrench fallback). */
+const SERVICE_ICONS = {
+  "NY State Inspection": "📋",
+  "Oil Change Service": "🛢️",
+  "Brake Repair": "🛑",
+  "Engine Diagnostics": "⚙️",
+  "Suspension & Steering Repair": "🚗",
+  "Battery & Charging System": "🔋",
+  "Cooling System Service": "❄️",
+  "Transmission Service": "🔧",
+  "A/C & Heating Repair": "🌡️",
+  "Exhaust & Muffler Repair": "💨",
+};
+function serviceIconFor(name) {
+  return SERVICE_ICONS[name] || "🔧";
+}
+
+// Mirrors StoreCal's live config so cards render instantly and still work if the
+// API is unreachable; useStoreCalServices() overrides this once the fetch lands.
+const FALLBACK_SERVICES = [
+  { _id: "insp", name: "NY State Inspection", description: "Safety and emissions inspection. Pass/fail results explained.", durationMin: 30, price: "$37" },
+  { _id: "oil", name: "Oil Change Service", description: "Oil and filter replacement, fluid top-off, and multi-point visual inspection for all makes and models.", durationMin: 30, price: "Request a Quote" },
+  { _id: "brake", name: "Brake Repair", description: "Full brake inspection, pad and rotor replacement, road test and safety check.", durationMin: 60, price: "Request a Quote" },
+  { _id: "diag", name: "Engine Diagnostics", description: "Check engine light diagnosis, computer code scan, system testing, and clear repair plan with estimate.", durationMin: 45, price: "Request a Quote" },
+  { _id: "susp", name: "Suspension & Steering Repair", description: "Steering and suspension check, component wear assessment, alignment guidance.", durationMin: 60, price: "Request a Quote" },
+  { _id: "batt", name: "Battery & Charging System", description: "Battery and alternator testing, terminal and cable inspection, replacement recommendations.", durationMin: 30, price: "Request a Quote" },
+  { _id: "cool", name: "Cooling System Service", description: "Cooling pressure test, radiator and hose inspection, coolant service.", durationMin: 45, price: "Request a Quote" },
+  { _id: "trans", name: "Transmission Service", description: "Fluid condition inspection, system performance check, service and repair recommendations.", durationMin: 60, price: "Request a Quote" },
+  { _id: "ac", name: "A/C & Heating Repair", description: "HVAC system diagnostics, leak and pressure checks, repair quote with parts options.", durationMin: 60, price: "Request a Quote" },
+  { _id: "exh", name: "Exhaust & Muffler Repair", description: "Exhaust leak diagnostics, muffler and pipe inspection, repair and replacement options.", durationMin: 60, price: "Request a Quote" },
+];
+
 const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "AutoRepair",
@@ -349,10 +314,10 @@ const localBusinessSchema = {
   telephone: SHOP_PHONE,
   address: {
     "@type": "PostalAddress",
-    streetAddress: "701 N Macquesten Pkwy",
+    streetAddress: "40 N Macquesten Pkwy",
     addressLocality: "Mount Vernon",
     addressRegion: "NY",
-    postalCode: "10552",
+    postalCode: "10550",
     addressCountry: "US",
   },
   areaServed: SERVICE_AREAS.map((area) => ({
@@ -952,8 +917,18 @@ function MechanicLeadWizard({ title, body, variant = "page", onSubmitted }) {
             } - ${contactName.trim() || ""}`}
             readOnly
           />
-          <input type="hidden" name="appointment_date" value={selectedDateKey || ""} readOnly />
-          <input type="hidden" name="appointment_time" value={selectedTime || ""} readOnly />
+          <input
+            type="hidden"
+            name="appointment_date"
+            value={selectedDateKey ? (() => { const [y,m,d] = selectedDateKey.split("-"); return `${Number(m)}/${Number(d)}/${String(y).slice(2)}`; })() : ""}
+            readOnly
+          />
+          <input
+            type="hidden"
+            name="appointment_time"
+            value={selectedTime ? ALL_SLOTS.find((s) => s.value === selectedTime)?.label || selectedTime : ""}
+            readOnly
+          />
           <input type="hidden" name="vehicle_make" value={vehicleMake} readOnly />
           <input type="hidden" name="vehicle_model" value={vehicleModel} readOnly />
           <input type="hidden" name="vehicle_year" value={vehicleYear} readOnly />
@@ -1418,310 +1393,6 @@ function ReviewsTicker({ reviews, googleRating = "4.8/5", onOpenReviewsPage }) {
   );
 }
 
-function SectionCard({ section, onOpenBooking, onOpenServicesPage, onOpenReviewsPage }) {
-  const reviewsTrackRef = useRef(null);
-  const reviewsTrackCloneRef = useRef(null);
-  const reviewsTrackWrapRef = useRef(null);
-  const hasReviews = Boolean(section.reviews?.length);
-
-  useReviewsMarquee({
-    trackWrapRef: reviewsTrackWrapRef,
-    trackRef: reviewsTrackRef,
-    cloneTrackRef: reviewsTrackCloneRef,
-    enabled: hasReviews,
-    introStaggerPx: 36,
-    introDuration: 1,
-    introStagger: 0.05,
-    speedPxPerSec: 72,
-    extraDeps: [section.reviews],
-  });
-
-  if (section.type === "image") {
-    if (section.variant === "focus") {
-      return (
-        <div className="marketing-card marketing-card--image marketing-card--focus">
-          <CardMedia section={section} />
-          <div className="image-focus__top">
-            <span className="image-focus__badge">{section.badge}</span>
-          </div>
-          <div className="image-focus__bottom">
-            <h3 className="marketing-card__title">{section.title}</h3>
-            <p className="marketing-card__body">{section.body}</p>
-            {section.cta && (
-              <a
-                href={section.ctaLink || "#"}
-                target={section.ctaLink && isExternalHttpUrl(section.ctaLink) ? "_blank" : undefined}
-                rel={section.ctaLink && isExternalHttpUrl(section.ctaLink) ? "noreferrer" : undefined}
-                onClick={
-                  section.ctaLink && opensBookingModal(section.ctaLink)
-                    ? (event) => {
-                        event.preventDefault();
-                        onOpenBooking();
-                      }
-                    : undefined
-                }
-                className={`marketing-card__cta ${
-                  section.ctaStyle === "light" ? "marketing-card__cta--light" : "marketing-card__cta--dark"
-                }`}
-              >
-                {section.cta}
-              </a>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    if (section.variant === "engage") {
-      return (
-        <div className="marketing-card marketing-card--image marketing-card--engage">
-          <CardMedia section={section} />
-          <div className="image-engage__metric">
-            <strong>{section.metric}</strong>
-            <span>{section.metricLabel}</span>
-          </div>
-          <div className="image-engage__content">
-            <h3 className="marketing-card__title">{section.title}</h3>
-            <p className="marketing-card__body">{section.body}</p>
-            {section.cta && (
-              <a
-                href={ctaHrefWithBookingDefault(section)}
-                target={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "_blank" : undefined}
-                rel={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "noreferrer" : undefined}
-                onClick={
-                  section.ctaLink === "#services"
-                    ? (event) => {
-                        event.preventDefault();
-                        onOpenServicesPage();
-                      }
-                    : opensBookingModal(ctaHrefWithBookingDefault(section))
-                      ? (event) => {
-                          event.preventDefault();
-                          onOpenBooking();
-                        }
-                      : undefined
-                }
-                className={`marketing-card__cta ${
-                  section.ctaStyle === "secondary" ? "marketing-card__cta--secondary" : "marketing-card__cta--dark"
-                }`}
-              >
-                {section.cta}
-              </a>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="marketing-card marketing-card--image marketing-card--scale">
-        <CardMedia section={section} />
-        <div className="image-scale__offer">
-          <p>{section.offer}</p>
-          <span>{section.offerDetail}</span>
-        </div>
-        <div className="image-scale__content">
-          <h3 className="marketing-card__title">{section.title}</h3>
-          <p className="marketing-card__body">{section.body}</p>
-          {section.cta && (
-            <a
-              href={ctaHrefWithBookingDefault(section)}
-              target={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "_blank" : undefined}
-              rel={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "noreferrer" : undefined}
-              onClick={
-                opensBookingModal(ctaHrefWithBookingDefault(section))
-                  ? (event) => {
-                      event.preventDefault();
-                      onOpenBooking();
-                    }
-                  : undefined
-              }
-              className="marketing-card__cta marketing-card__cta--dark"
-            >
-              {section.cta}
-            </a>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (section.variant === "bright") {
-    return (
-      <div className="marketing-card marketing-card--text marketing-card--bright">
-        <h3 className="marketing-card__title">{section.title}</h3>
-        <p className="marketing-card__body">{section.body}</p>
-        <ul className="feature-list">
-          {section.points?.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-        {(section.cta || section.subCta) && (
-          <div className="card-actions">
-            {section.cta && (
-              <a
-                href={ctaHrefWithBookingDefault(section)}
-                target={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "_blank" : undefined}
-                rel={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "noreferrer" : undefined}
-                onClick={
-                  opensBookingModal(ctaHrefWithBookingDefault(section))
-                    ? (event) => {
-                        event.preventDefault();
-                        onOpenBooking();
-                      }
-                    : undefined
-                }
-                className="marketing-card__cta marketing-card__cta--dark"
-              >
-                {section.cta}
-              </a>
-            )}
-            {section.subCta && (
-              <a href={section.subCtaLink || "#"} className="text-link">
-                {section.subCta}
-              </a>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (section.variant === "dark") {
-    return (
-      <div className="marketing-card marketing-card--text marketing-card--dark">
-        <h3 className="marketing-card__title">{section.title}</h3>
-        <p className="marketing-card__body">{section.body}</p>
-        <div className="pricing-box">
-          <strong>{section.price}</strong>
-          <span>{section.period}</span>
-        </div>
-        <div className="marketing-card__chips">
-          {section.points?.map((point) => (
-            <span key={point} className="chip">
-              {point}
-            </span>
-          ))}
-        </div>
-        {section.cta && (
-          <a
-            href={ctaHrefWithBookingDefault(section)}
-            target={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "_blank" : undefined}
-            rel={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "noreferrer" : undefined}
-            onClick={
-              opensBookingModal(ctaHrefWithBookingDefault(section))
-                ? (event) => {
-                    event.preventDefault();
-                    onOpenBooking();
-                  }
-                : undefined
-            }
-            className="marketing-card__cta marketing-card__cta--light"
-          >
-            {section.cta}
-          </a>
-        )}
-      </div>
-    );
-  }
-
-  if (section.variant === "map") {
-    return (
-      <div className="marketing-card marketing-card--text marketing-card--map">
-        <div className="marketing-card__map-header">
-          <div>
-            <h3 className="marketing-card__title">{section.title}</h3>
-            <p className="marketing-card__body">{section.body}</p>
-          </div>
-          {section.cta && (
-            <a
-              href={section.ctaLink || SHOP_MAP_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="marketing-card__cta marketing-card__cta--dark marketing-card__map-cta"
-            >
-              {section.cta}
-            </a>
-          )}
-        </div>
-        <div className="marketing-card__map-wrap">
-          <iframe
-            title="Ralph and Son Auto Repair map widget"
-            src={SHOP_MAP_EMBED_URL}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
-        <p className="marketing-card__notice">
-          <strong>Note:</strong> Ralph is no longer located at SLR Auto Repair in White Plains. Our only location is here in Fleetwood, Mount Vernon.
-        </p>
-      </div>
-    );
-  }
-
-  if (section.variant === "lead") {
-    return (
-      <div className="marketing-card marketing-card--text marketing-card--lead">
-        <h3 className="marketing-card__title">{section.title}</h3>
-        <p className="marketing-card__body">{section.body}</p>
-        <button type="button" className="marketing-card__cta marketing-card__cta--dark" onClick={onOpenBooking}>
-          Book appointment
-        </button>
-      </div>
-    );
-  }
-
-  if (section.reviews) {
-    return (
-      <ReviewsTicker
-        reviews={section.reviews}
-        googleRating={section.googleRating}
-        onOpenReviewsPage={onOpenReviewsPage}
-      />
-    );
-  }
-
-  return (
-    <div className="marketing-card marketing-card--text marketing-card--minimal">
-      <h3 className="marketing-card__title">{section.title}</h3>
-      <p className="marketing-card__body">{section.body}</p>
-      <div className="kpi-grid">
-        {section.points?.map((point) => (
-          <div key={point} className="kpi-cell">
-            {point}
-          </div>
-        ))}
-      </div>
-      {(section.cta || section.subCta) && (
-        <div className="card-actions">
-          {section.cta && (
-            <a
-              href={ctaHrefWithBookingDefault(section)}
-              target={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "_blank" : undefined}
-              rel={isExternalHttpUrl(ctaHrefWithBookingDefault(section)) ? "noreferrer" : undefined}
-              onClick={
-                opensBookingModal(ctaHrefWithBookingDefault(section))
-                  ? (event) => {
-                      event.preventDefault();
-                      onOpenBooking();
-                    }
-                  : undefined
-              }
-              className="marketing-card__cta marketing-card__cta--dark"
-            >
-              {section.cta}
-            </a>
-          )}
-          {section.subCta && (
-            <a href={section.subCtaLink || "#"} className="text-link">
-              {section.subCta}
-            </a>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function BookingModal({ isOpen, onClose, wizardKey }) {
   useEffect(() => {
@@ -1765,32 +1436,10 @@ function BookingModal({ isOpen, onClose, wizardKey }) {
   );
 }
 
-function ServicesPage({ onGoHome, onOpenBooking, onOpenReviewsPage, enableMobileDetailsPreview }) {
+function ServicesPage({ onGoHome, onOpenBooking, onOpenReviewsPage, services }) {
   const servicesReviewsTrackRef = useRef(null);
   const servicesReviewsTrackCloneRef = useRef(null);
   const servicesReviewsTrackWrapRef = useRef(null);
-  const [isServicesMobile, setIsServicesMobile] = useState(
-    typeof window !== "undefined" ? window.matchMedia("(max-width: 1199px)").matches : false
-  );
-  const [showAllServiceDetails, setShowAllServiceDetails] = useState(false);
-  const shouldShowCollapsedDetails = Boolean(enableMobileDetailsPreview && isServicesMobile && !showAllServiceDetails);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(max-width: 1199px)");
-    const updateIsMobile = (event) => {
-      setIsServicesMobile(event.matches);
-      if (!event.matches) setShowAllServiceDetails(false);
-    };
-
-    setIsServicesMobile(mediaQuery.matches);
-    mediaQuery.addEventListener("change", updateIsMobile);
-    return () => mediaQuery.removeEventListener("change", updateIsMobile);
-  }, []);
-
-  useEffect(() => {
-    setShowAllServiceDetails(false);
-  }, [enableMobileDetailsPreview]);
 
   useReviewsMarquee({
     trackWrapRef: servicesReviewsTrackWrapRef,
@@ -1825,56 +1474,14 @@ function ServicesPage({ onGoHome, onOpenBooking, onOpenReviewsPage, enableMobile
           </p>
         </div>
       </div>
-      <section className="services-page-view__details" aria-label="Popular services and pricing">
+      <section className="services-page-view__details" aria-label="Services and pricing">
         <p className="services-page-view__eyebrow">Service Details</p>
-        <h2 className="services-page-view__details-title">Popular repair services and what to expect</h2>
-        <div
-          className={`services-page-view__details-grid-wrap ${
-            shouldShowCollapsedDetails ? "services-page-view__details-grid-wrap--collapsed" : ""
-          }`}
-        >
-          <div className="services-page-view__details-grid">
-            {serviceDetails.map((service) => (
-              <article key={service.title} className="services-page-view__detail-card">
-                <div className="services-page-view__detail-head">
-                  <h3>{service.title}</h3>
-                  <span className={service.startingPrice === "Request a Quote" ? "services-page-view__badge--quote" : ""}>
-                    {service.startingPrice}
-                  </span>
-                </div>
-                <div className="services-page-view__detail-lists">
-                  <div>
-                    <p className="services-page-view__detail-label">Common symptoms</p>
-                    <ul className="services-page-view__detail-list services-page-view__detail-list--symptoms">
-                      {service.symptoms.map((symptom) => (
-                        <li key={symptom}>{symptom}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="services-page-view__detail-label">What is included</p>
-                    <ul className="services-page-view__detail-list services-page-view__detail-list--included">
-                      {service.included.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+        <h2 className="services-page-view__details-title">Our services &amp; pricing</h2>
+        <div className="v3-grid v3-grid--services">
+          {(services || FALLBACK_SERVICES).map((service) => (
+            <ServiceCard key={service._id || service.name} service={service} />
+          ))}
         </div>
-        {shouldShowCollapsedDetails && (
-          <div className="services-page-view__details-more-wrap">
-            <button
-              type="button"
-              className="services-page-view__details-more"
-              onClick={() => setShowAllServiceDetails(true)}
-            >
-              See more services
-            </button>
-          </div>
-        )}
       </section>
       <section className="services-page-view__book-section" aria-label="Book your appointment">
         <div className="services-page-view__book-top">
@@ -1886,8 +1493,8 @@ function ServicesPage({ onGoHome, onOpenBooking, onOpenReviewsPage, enableMobile
             </p>
           </div>
           <div className="services-page-view__book-total">
-            <strong>★★★★☆ 4.8/5</strong>
-            <span>320+ verified reviews</span>
+            <strong>★★★★★ 4.8/5</strong>
+            <span>363+ verified reviews</span>
           </div>
         </div>
         <div className="services-page-view__book-reviews" aria-label="Featured customer reviews">
@@ -1946,8 +1553,8 @@ function ServicesPage({ onGoHome, onOpenBooking, onOpenReviewsPage, enableMobile
         <div className="services-page-view__local-grid">
           <div className="services-page-view__map-wrap">
             <iframe
-              title="Ralph and Son Auto Repair map"
-              src="https://maps.google.com/maps?q=701%20N%20Macquesten%20Pkwy%20Mount%20Vernon%20NY%2010552&output=embed"
+              title="Surgical Auto Repair map"
+              src={SHOP_MAP_EMBED_URL}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
@@ -1986,13 +1593,13 @@ function ReviewsPage({ onGoHome, onOpenBooking }) {
             What our customers are saying
           </h1>
           <p className="services-page-view__intro">
-            Trusted feedback from local drivers who rely on Ralph & Son for honest, high-quality service.
+            Trusted feedback from local drivers who rely on Surgical Auto Repair for honest, high-quality service.
           </p>
         </div>
         <div className="reviews-page-view__meta-card">
-          <p className="reviews-page-view__score" aria-label="4.8 out of 5 stars from over 320 reviews">
-            <strong>{"★★★★☆ 4.8/5"}</strong>
-            <span>320+ verified reviews</span>
+          <p className="reviews-page-view__score" aria-label="4.8 out of 5 stars from over 363 reviews">
+            <strong>{"★★★★★ 4.8/5"}</strong>
+            <span>363+ verified reviews</span>
           </p>
           <div className="reviews-page-view__actions">
             <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="reviews-list__cta">
@@ -2024,6 +1631,92 @@ function ReviewsPage({ onGoHome, onOpenBooking }) {
   );
 }
 
+function AboutPage({ onGoHome, onOpenBooking }) {
+  return (
+    <section className="services-page-view about-page-view" aria-labelledby="about-page-title">
+      <button type="button" className="services-page-view__back" onClick={onGoHome}>
+        <svg className="services-page-view__back-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 6L6 12L12 18" />
+          <path d="M6 12H19" />
+        </svg>
+        <span>Back</span>
+      </button>
+
+      <div className="about-page-view__hero">
+        <img
+          src="/images/sa-family.webp"
+          alt="Surgical Auto Repair family"
+          className="about-page-view__hero-img"
+        />
+        <div className="about-page-view__hero-overlay">
+          <p className="about-page-view__hero-eyebrow">About Us</p>
+          <h1 id="about-page-title" className="about-page-view__hero-title">
+            Surgical precision. Honest service. Mount Vernon&apos;s trusted shop since 1995.
+          </h1>
+        </div>
+      </div>
+
+      <section className="services-page-view__details about-page-view__values" aria-label="Why choose us">
+        <p className="services-page-view__eyebrow">Why Choose Us</p>
+        <h2 className="services-page-view__details-title">A shop built on trust and quality workmanship</h2>
+        <div className="services-page-view__details-grid about-page-view__values-grid">
+          {ABOUT_VALUES.map((value) => (
+            <article key={value.title} className="services-page-view__detail-card">
+              <div className="services-page-view__detail-head">
+                <h3>{value.title}</h3>
+              </div>
+              <p className="marketing-card__body">{value.body}</p>
+            </article>
+          ))}
+        </div>
+        <hr className="about-page-view__divider" />
+        <div className="about-page-view__intro-text">
+          <p>
+            If you are looking for a local auto repair shop you can trust, consider Surgical Auto
+            Repair. Since 1995, we have been providing our friends and neighbors throughout Mount
+            Vernon with dependable, trustworthy auto repairs.
+          </p>
+          <p>
+            Looking for an affordable alternative to the high prices at your local dealership?
+            Supported by a team of ASE-Certified technicians who receive ongoing training, we offer
+            you dealership-quality knowledge and experience — without dealership pricing.
+          </p>
+        </div>
+      </section>
+
+      <section className="services-page-view__local" aria-label="Visit us">
+        <div className="services-page-view__local-top">
+          <div>
+            <p className="services-page-view__eyebrow">Visit Us</p>
+            <h2 className="services-page-view__details-title">Call us or book your appointment</h2>
+            <p className="services-page-view__intro" style={{ maxWidth: "none" }}>
+              {SHOP_ADDRESS}
+              <br />
+              Mon – Fri: 8 AM – 6 PM · Closed Saturday &amp; Sunday
+              <br />
+              <a href={SHOP_PHONE_HREF}>{SHOP_PHONE}</a>
+            </p>
+          </div>
+        </div>
+        <div className="services-page-view__map-wrap">
+          <iframe
+            title="Surgical Auto Repair map"
+            src={SHOP_MAP_EMBED_URL}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </section>
+
+      <div className="reviews-page-view__book-row">
+        <button type="button" className="marketing-card__cta marketing-card__cta--dark" onClick={onOpenBooking}>
+          Book Appointment
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function CardsFooter({ className = "", compact = false }) {
   return (
     <section className={`cards-footer ${className}`.trim()} aria-label="Cards footer">
@@ -2038,14 +1731,14 @@ function CardsFooter({ className = "", compact = false }) {
         </div>
         <div className="cards-footer__meta">
           <div className="cards-footer__socials" aria-label="Contact links">
-            <a href="tel:9147765331" aria-label="Phone" className="social-icon">
+            <a href={SHOP_PHONE_HREF} aria-label="Phone" className="social-icon">
               <span className="social-icon__emoji" aria-hidden="true">
                 📞
               </span>
               <span className="social-icon__label">Call</span>
             </a>
             <a
-              href="https://maps.google.com/?q=701+N+Macquesten+Pkwy+Mount+Vernon+NY+10552"
+              href={SHOP_MAP_URL}
               target="_blank"
               rel="noreferrer"
               aria-label="Address"
@@ -2064,234 +1757,212 @@ function CardsFooter({ className = "", compact = false }) {
   );
 }
 
-function LayoutSwitcher({ current, onChange }) {
-  const [open, setOpen] = useState(false);
-  const options = [
-    { id: 1, label: "1 — Trustworthy Mechanic", hint: "Original" },
-    { id: 2, label: "2 — Luxury & Sport", hint: "Premium" },
-    { id: 3, label: "3 — Traditional", hint: "Classic shop site" },
-  ];
+
+// Live services from the StoreCal API (name, description, duration, price).
+// Starts from FALLBACK_SERVICES so cards render immediately and degrade
+// gracefully if the API is unreachable.
+function useStoreCalServices() {
+  const [services, setServices] = useState(FALLBACK_SERVICES);
+  useEffect(() => {
+    let alive = true;
+    fetch(`${STORECAL_API_BASE}/api/shop-config?key=${STORECAL_STORE_KEY}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (alive && d && Array.isArray(d.services) && d.services.length) {
+          setServices(d.services);
+        }
+      })
+      .catch(() => {}); // keep the fallback list on any network/parse error
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return services;
+}
+
+// Unified service card used by both the home preview and the services page.
+// Clean icon card + duration · price + a Book button that opens the StoreCal
+// widget preselected to this service.
+function ServiceCard({ service }) {
+  const hasMeta = service.durationMin || service.price;
+  // The whole card is the control: click (or Enter/Space) opens the StoreCal
+  // widget preselected to this service, dropping the visitor on the date/time
+  // step (no service-picker step to repeat).
+  const book = () => openStoreCal(service.name);
   return (
-    <div className="layout-switcher">
-      <button
-        type="button"
-        className="layout-switcher__btn"
-        aria-label="Switch home layout"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <circle cx="12" cy="5" r="2" fill="currentColor" />
-          <circle cx="12" cy="12" r="2" fill="currentColor" />
-          <circle cx="12" cy="19" r="2" fill="currentColor" />
-        </svg>
-      </button>
-      {open && (
-        <>
-          <div className="layout-switcher__overlay" onClick={() => setOpen(false)} />
-          <div className="layout-switcher__menu" role="menu">
-            <p className="layout-switcher__heading">Home layout (dev)</p>
-            {options.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                role="menuitemradio"
-                aria-checked={current === o.id}
-                className={`layout-switcher__item${current === o.id ? " is-active" : ""}`}
-                onClick={() => { onChange(o.id); setOpen(false); }}
-              >
-                <span className="layout-switcher__item-label">{o.label}</span>
-                <span className="layout-switcher__item-hint">{o.hint}</span>
-              </button>
-            ))}
-          </div>
-        </>
+    <article
+      className="v3-card v3-card--service"
+      role="button"
+      tabIndex={0}
+      aria-label={`Book ${service.name}`}
+      onClick={book}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          book();
+        }
+      }}
+    >
+      <span className="v3-card__icon" aria-hidden="true">{serviceIconFor(service.name)}</span>
+      <h3>{service.name}</h3>
+      {service.description && <p>{service.description}</p>}
+      {hasMeta && (
+        <p className="v3-card__meta">
+          <span className="v3-card__dur">{service.durationMin ? `${service.durationMin} min` : ""}</span>
+          {service.price && <span className="v3-card__price">{service.price}</span>}
+        </p>
       )}
-    </div>
+      <span className="v3-card__book" aria-hidden="true">
+        Book<span className="v3-card__book-arrow">&nbsp;→</span>
+      </span>
+    </article>
   );
 }
 
-function HomeLuxury({ onOpenBooking, onOpenServicesPage, onOpenReviewsPage, onOpenAboutPage }) {
-  const featuredServices = serviceDetails.slice(0, 6);
-  const gallery = ["/images/sa-01.webp", "/images/sa-02.webp", "/images/sa-03.webp"];
+function HomeModern({ onOpenBooking, onOpenServicesPage, onOpenReviewsPage, onOpenAboutPage, services }) {
+  const featuredServices = (services || FALLBACK_SERVICES).slice(0, 6);
 
   return (
-    <div className="home-v2">
-      <section className="lux-hero">
-        <img src="/images/sa-hero.webp" alt="" className="lux-hero__bg" aria-hidden="true" />
-        <div className="lux-hero__overlay" />
-        <div className="lux-hero__inner">
-          <p className="lux-eyebrow">Mount Vernon, NY · Since 1995</p>
-          <h1 className="lux-hero__title">Precision service for the cars you&nbsp;love.</h1>
-          <p className="lux-hero__subtitle">
-            From luxury sedans to weekend sport coupes, our ASE-certified technicians deliver
-            dealership-quality work — without dealership pricing.
+    <div className="v3">
+      <section className="v3-hero">
+        <div className="v3-hero__text">
+          <p className="v3-pill">📍 Mount Vernon, NY · Family-run since 1995</p>
+          <h1 className="v3-hero__title">
+            Auto repair you can <span>actually</span> trust.
+          </h1>
+          <p className="v3-hero__lede">
+            Preventative maintenance to major repairs — done right the first time by ASE-certified
+            technicians who treat you like a neighbor, not a number.
           </p>
-          <div className="lux-hero__actions">
-            <button type="button" className="lux-btn lux-btn--gold" onClick={onOpenBooking}>
+          <div className="v3-hero__cta">
+            <button type="button" className="v3-btn v3-btn--primary" onClick={onOpenBooking}>
               Book Appointment
             </button>
-            <a href={SHOP_PHONE_HREF} className="lux-btn lux-btn--ghost">📞 {SHOP_PHONE}</a>
+            <a href={SHOP_PHONE_HREF} className="v3-btn v3-btn--ghost">📞 {SHOP_PHONE}</a>
+          </div>
+          <div className="v3-hero__trust">
+            <div><strong>4.8★</strong><span>363+ Google reviews</span></div>
+            <div className="v3-hero__divider" aria-hidden="true" />
+            <div><strong>30+ yrs</strong><span>Serving Westchester</span></div>
           </div>
         </div>
-        <div className="lux-stats">
-          <div className="lux-stat"><strong>1995</strong><span>Serving Since</span></div>
-          <div className="lux-stat"><strong>4.8/5</strong><span>363+ Reviews</span></div>
-          <div className="lux-stat"><strong>ASE</strong><span>Certified Team</span></div>
-          <div className="lux-stat"><strong>12k mi</strong><span>Repair Warranty</span></div>
+        <div className="v3-hero__media">
+          <video autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+            <source src="/videos/hero-layout3.mp4" type="video/mp4" />
+          </video>
         </div>
-      </section>
-
-      <section className="lux-section">
-        <div className="lux-section__head">
-          <p className="lux-eyebrow lux-eyebrow--dark">What We Do</p>
-          <h2 className="lux-section__title">Expertise across every make &amp; model</h2>
-        </div>
-        <div className="lux-services">
-          {featuredServices.map((s) => (
-            <article key={s.title} className="lux-service-card">
-              <h3>{s.title}</h3>
-              <p className="lux-service-card__price">{s.startingPrice}</p>
-              <ul>{s.included.map((i) => <li key={i}>{i}</li>)}</ul>
-            </article>
-          ))}
-        </div>
-        <div className="lux-section__cta">
-          <button type="button" className="lux-btn lux-btn--outline-dark" onClick={() => onOpenServicesPage("link")}>
-            View all services
-          </button>
-        </div>
-      </section>
-
-      <section className="lux-feature">
-        <div className="lux-feature__media">
-          <img src="/images/sa-under-hood.webp" alt="Technician performing major repair work" />
-        </div>
-        <div className="lux-feature__body">
-          <p className="lux-eyebrow lux-eyebrow--dark">Quality Workmanship</p>
-          <h2 className="lux-section__title">Major repairs, handled with surgical precision</h2>
-          <p className="lux-feature__copy">
-            From engine and transmission concerns to brake and suspension work, we focus on long-term
-            fixes backed by a 12,000 MI / 12 MO warranty. Every job is personal.
-          </p>
-          <button type="button" className="lux-btn lux-btn--dark" onClick={onOpenAboutPage}>About us</button>
-        </div>
-      </section>
-
-      <section className="lux-gallery" aria-label="Shop gallery">
-        {gallery.map((src) => (
-          <div key={src} className="lux-gallery__item">
-            <img src={src} alt="Surgical Auto Repair shop" loading="lazy" />
-          </div>
-        ))}
       </section>
 
       <ReviewsTicker reviews={CUSTOMER_REVIEWS} googleRating="4.8/5" onOpenReviewsPage={onOpenReviewsPage} />
 
-      <section className="lux-band">
-        <div className="lux-band__inner">
-          <h2>Ready when you are.</h2>
-          <p>Financing available — Snap Finance &amp; all major cards accepted.</p>
-          <button type="button" className="lux-btn lux-btn--gold" onClick={onOpenBooking}>
-            Book Appointment
-          </button>
-        </div>
-      </section>
-
-      <CardsFooter className="cards-footer--lux" />
-    </div>
-  );
-}
-
-function HomeTraditional({ onOpenBooking, onOpenServicesPage, onOpenReviewsPage, onOpenAboutPage }) {
-  const serviceIcons = ["🔧", "🛢️", "🛑", "⚙️", "🚗", "❄️", "🔋", "💨"];
-  const topServices = serviceDetails.slice(0, 8);
-
-  return (
-    <div className="home-v3">
-      <section className="trad-hero">
-        <img src="/images/sa-exterior.jpg" alt="" className="trad-hero__bg" aria-hidden="true" />
-        <div className="trad-hero__overlay" />
-        <div className="trad-hero__inner">
-          <p className="trad-hero__pin">📍 Mount Vernon, NY</p>
-          <h1 className="trad-hero__title">Expert repairs. Fair prices. Trusted since 1995.</h1>
-          <p className="trad-hero__subtitle">
-            Your local, family-run auto repair shop for preventative maintenance and major repairs.
-            ASE-certified technicians get the job done right the first time.
-          </p>
-          <div className="trad-hero__actions">
-            <button type="button" className="trad-btn trad-btn--primary" onClick={onOpenBooking}>
-              Book Appointment
-            </button>
-            <a href={SHOP_PHONE_HREF} className="trad-btn trad-btn--secondary">📞 {SHOP_PHONE}</a>
-          </div>
-        </div>
-      </section>
-
-      <div className="trad-hours-bar">
-        <span><strong>Hours:</strong> Mon–Fri 8 AM – 6 PM</span>
-        <span><strong>Closed:</strong> Sat &amp; Sun</span>
-        <span><strong>Address:</strong> {SHOP_ADDRESS}</span>
+      <div className="v3-bar">
+        <span><strong>Hours</strong> Mon–Fri 8 AM – 6 PM</span>
+        <span><strong>Closed</strong> Sat &amp; Sun</span>
+        <span><strong>Find us</strong> {SHOP_ADDRESS}</span>
       </div>
 
-      <section className="trad-section">
-        <div className="trad-section__head">
-          <h2 className="trad-section__title">Our Services</h2>
-          <p className="trad-section__sub">Complete auto repair and maintenance, all under one roof.</p>
+      <section className="v3-section">
+        <div className="v3-head">
+          <p className="v3-kicker">Our Services</p>
+          <h2 className="v3-h2">Everything your car needs, under one roof</h2>
         </div>
-        <div className="trad-services">
-          {topServices.map((s, i) => (
-            <article key={s.title} className="trad-service">
-              <span className="trad-service__icon" aria-hidden="true">{serviceIcons[i % serviceIcons.length]}</span>
-              <h3>{s.title}</h3>
-              <p>{s.symptoms[0]}</p>
-            </article>
+        <div className="v3-grid">
+          {featuredServices.map((s) => (
+            <ServiceCard key={s._id || s.name} service={s} />
           ))}
         </div>
-        <div className="trad-section__cta">
-          <button type="button" className="trad-btn trad-btn--outline" onClick={() => onOpenServicesPage("link")}>
+        <div className="v3-center">
+          <button type="button" className="v3-btn v3-btn--outline" onClick={() => onOpenServicesPage("link")}>
             View all services
           </button>
         </div>
       </section>
 
-      <section className="trad-about">
-        <div className="trad-about__media">
-          <img src="/images/sa-family.webp" alt="The Surgical Auto Repair team" />
+      <section className="v3-feature">
+        <div className="v3-feature__media">
+          <img src="/images/sa-under-hood.webp" alt="Technician performing major engine repair" />
         </div>
-        <div className="trad-about__body">
-          <h2 className="trad-section__title">A shop built on trust</h2>
-          <p>
-            Since 1995, we have provided our friends and neighbors throughout Mount Vernon with
-            dependable, trustworthy auto repairs. We treat every customer and every vehicle like family.
+        <div className="v3-feature__body">
+          <p className="v3-kicker">Quality Workmanship</p>
+          <h2 className="v3-h2">Major repairs, handled with surgical precision.</h2>
+          <p className="v3-feature__copy">
+            Engine, transmission, brakes, suspension — we focus on long-term fixes, not quick
+            patches. Every repair is backed by our 12,000 MI / 12 MO warranty.
           </p>
-          <ul className="trad-about__list">
-            <li>No surprise charges — repair options explained</li>
-            <li>ASE-Certified technicians with ongoing training</li>
-            <li>12,000 MI / 12 MO warranty on repairs</li>
-            <li>Free estimates &amp; financing options available</li>
+          <ul className="v3-feature__checks">
+            <li>No surprise charges — options explained up front</li>
+            <li>Factory-grade diagnostics &amp; tooling</li>
+            <li>Repairs that last, guaranteed in writing</li>
           </ul>
-          <button type="button" className="trad-btn trad-btn--outline" onClick={onOpenAboutPage}>About us</button>
+          <button type="button" className="v3-btn v3-btn--primary" onClick={onOpenAboutPage}>About the shop</button>
         </div>
       </section>
 
-      <ReviewsTicker reviews={CUSTOMER_REVIEWS} googleRating="4.8/5" onOpenReviewsPage={onOpenReviewsPage} />
+      <section className="v3-trust">
+        <div className="v3-trust__inner">
+          <p className="v3-kicker">Why drivers choose us</p>
+          <h2 className="v3-h2">A shop built on trust</h2>
+          <p className="v3-trust__sub">30 years in Mount Vernon. Honest diagnostics, no upsells, guaranteed work.</p>
+          <div className="v3-trust__pillars">
+            <div className="v3-trust__pillar">
+              <span className="v3-trust__pillar-icon">🛡️</span>
+              <h3>No surprise charges</h3>
+              <p>We explain every option and price up front — no hidden fees, ever.</p>
+            </div>
+            <div className="v3-trust__pillar">
+              <span className="v3-trust__pillar-icon">✅</span>
+              <h3>12k mi / 12 mo warranty</h3>
+              <p>Every repair is backed in writing. If it's not right, we make it right.</p>
+            </div>
+            <div className="v3-trust__pillar">
+              <span className="v3-trust__pillar-icon">🎓</span>
+              <h3>ASE-certified techs</h3>
+              <p>Dealership-grade knowledge and tooling without the dealership pricing.</p>
+            </div>
+            <div className="v3-trust__pillar">
+              <span className="v3-trust__pillar-icon">💳</span>
+              <h3>Financing available</h3>
+              <p>Acima lease-to-own and CFNA credit — apply in minutes and drive away today.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <section className="trad-contact">
-        <div className="trad-contact__info">
-          <h2 className="trad-section__title">Find us in Mount Vernon</h2>
-          <p className="trad-contact__line">{SHOP_ADDRESS}</p>
-          <p className="trad-contact__line"><a href={SHOP_PHONE_HREF}>{SHOP_PHONE}</a></p>
-          <p className="trad-contact__line">Mon – Fri: 8 AM – 6 PM · Closed weekends</p>
-          <p className="trad-contact__label">Neighborhoods we serve</p>
-          <ul className="trad-contact__areas">
+      <section className="v3-financing" aria-label="Financing options">
+        <div className="v3-financing__inner">
+          <p className="v3-kicker">Flexible payment options</p>
+          <h2 className="v3-h2">Financing available — drive away today.</h2>
+          <p className="v3-financing__sub">We offer flexible financing so you can get the repairs you need without the wait. Apply in minutes and get back on the road.</p>
+          <div className="v3-financing__cards">
+            <div className="v3-financing__card">
+              <span className="v3-financing__icon">🔑</span>
+              <h3>Acima Lease-to-Own</h3>
+              <p>Lease-to-own financing with flexible payment plans. No credit needed — apply in minutes and get approved fast.</p>
+            </div>
+            <div className="v3-financing__card">
+              <span className="v3-financing__icon">💳</span>
+              <h3>CFNA Credit Card</h3>
+              <p>Backed by Bridgestone — use your CFNA card on tires, auto maintenance, and more. Apply online and get back on the road.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="v3-contact">
+        <div className="v3-contact__card">
+          <h2 className="v3-h2">Find us in Mount Vernon</h2>
+          <p className="v3-contact__line">{SHOP_ADDRESS}</p>
+          <p className="v3-contact__line"><a href={SHOP_PHONE_HREF}>{SHOP_PHONE}</a></p>
+          <p className="v3-contact__line">Mon – Fri: 8 AM – 6 PM · Closed weekends</p>
+          <p className="v3-contact__label">Neighborhoods we serve</p>
+          <ul className="v3-areas">
             {SERVICE_AREAS.map((a) => <li key={a}>{a}</li>)}
           </ul>
-          <button type="button" className="trad-btn trad-btn--primary" onClick={onOpenBooking}>
+          <button type="button" className="v3-btn v3-btn--primary" onClick={onOpenBooking}>
             Book Appointment
           </button>
         </div>
-        <div className="trad-contact__map">
+        <div className="v3-contact__map">
           <iframe
             title="Surgical Auto Repair map"
             src={SHOP_MAP_EMBED_URL}
@@ -2301,7 +1972,7 @@ function HomeTraditional({ onOpenBooking, onOpenServicesPage, onOpenReviewsPage,
         </div>
       </section>
 
-      <CardsFooter className="cards-footer--trad" />
+      <CardsFooter className="cards-footer--v3" />
     </div>
   );
 }
@@ -2316,23 +1987,14 @@ export default function App() {
     typeof window !== "undefined" ? getActivePageFromHash(window.location.hash) : "home"
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [homeLayout, setHomeLayout] = useState(() => {
-    if (typeof window === "undefined") return 1;
-    const saved = Number(window.localStorage.getItem(HOME_LAYOUT_STORAGE_KEY));
-    return saved === 2 || saved === 3 ? saved : 1;
-  });
+  const homeLayout = 3;
+  const services = useStoreCalServices();
 
-  const changeHomeLayout = (id) => {
-    setHomeLayout(id);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(HOME_LAYOUT_STORAGE_KEY, String(id));
-    }
-    if (activePage !== "home") openHomePage();
-  };
-
+  // All "Book Appointment" CTAs across the site route through here. Booking is
+  // handled by the StoreCal widget (embed.js in index.html); the buttons keep
+  // their original native styling.
   const openBookingModal = () => {
-    setBookingModalKey((k) => k + 1);
-    setIsBookingModalOpen(true);
+    openStoreCal();
   };
   const closeBookingModal = () => setIsBookingModalOpen(false);
   useEffect(() => {
@@ -2358,8 +2020,8 @@ export default function App() {
     setActivePage("home");
   };
   const openAboutPage = () => {
-    window.location.hash = "";
-    setActivePage("home");
+    window.location.hash = "about";
+    setActivePage("about");
   };
 
   useEffect(() => {
@@ -2400,24 +2062,29 @@ export default function App() {
 
       if (activePage === "services") {
         gsap.fromTo(
-          ".services-page-view",
+          ".services-page-view:not(.about-page-view)",
           { y: 18, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, ease: "power3.out", clearProps: "transform,opacity" }
+          { y: 0, opacity: 1, duration: 1.1, ease: "power3.out", clearProps: "transform,opacity" }
         );
         gsap.fromTo(
-          ".services-page-view__back",
+          ".services-page-view:not(.about-page-view) .services-page-view__back",
           { x: -10, opacity: 0 },
           { x: 0, opacity: 1, duration: 0.85, delay: 0.26, ease: "power3.out", clearProps: "transform,opacity" }
         );
         gsap.fromTo(
-          ".services-page-view__group",
+          ".services-page-view__top, .services-page-view__details > .services-page-view__eyebrow, .services-page-view__details-title",
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.85, delay: 0.3, ease: "power3.out", clearProps: "transform,opacity" }
+        );
+        gsap.fromTo(
+          ".services-page-view__detail-card",
           { y: 14, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            duration: 0.95,
-            delay: 0.34,
-            stagger: 0.2,
+            duration: 0.82,
+            delay: 0.36,
+            stagger: 0.08,
             ease: "power3.out",
             clearProps: "transform,opacity",
           }
@@ -2437,9 +2104,14 @@ export default function App() {
           { y: 0, opacity: 1, duration: 1.1, ease: "power3.out", clearProps: "transform,opacity" }
         );
         gsap.fromTo(
-          ".reviews-page-view .services-page-view__back, .reviews-page-view__actions",
+          ".reviews-page-view .services-page-view__back",
+          { x: -10, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.85, delay: 0.26, ease: "power3.out", clearProps: "transform,opacity" }
+        );
+        gsap.fromTo(
+          ".reviews-page-view__intro-block, .reviews-page-view__meta-card",
           { y: 10, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.85, delay: 0.2, ease: "power3.out", clearProps: "transform,opacity" }
+          { y: 0, opacity: 1, duration: 0.85, delay: 0.3, ease: "power3.out", clearProps: "transform,opacity" }
         );
         gsap.fromTo(
           ".reviews-page-view__card",
@@ -2448,11 +2120,35 @@ export default function App() {
             y: 0,
             opacity: 1,
             duration: 0.82,
-            delay: 0.3,
+            delay: 0.36,
             stagger: 0.08,
             ease: "power3.out",
             clearProps: "transform,opacity",
           }
+        );
+        return;
+      }
+
+      if (activePage === "about") {
+        gsap.fromTo(
+          ".about-page-view",
+          { y: 18, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.1, ease: "power3.out", clearProps: "transform,opacity" }
+        );
+        gsap.fromTo(
+          ".about-page-view .services-page-view__back",
+          { x: -10, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.85, delay: 0.26, ease: "power3.out", clearProps: "transform,opacity" }
+        );
+        gsap.fromTo(
+          ".about-page-view__hero",
+          { y: 14, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.95, delay: 0.34, ease: "power3.out", clearProps: "transform,opacity" }
+        );
+        gsap.fromTo(
+          ".about-page-view__values, .about-page-view__intro-text",
+          { y: 14, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9, delay: 0.5, stagger: 0.15, ease: "power3.out", clearProps: "transform,opacity" }
         );
         return;
       }
@@ -2511,208 +2207,109 @@ export default function App() {
     <div ref={appRef}>
       <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
       <header className="site-header">
-        <div className="header-left">
-          {/* Hamburger — mobile only, left of logo */}
-          <button
-            type="button"
-            className="hamburger-btn"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen((v) => !v)}
-          >
-            {mobileMenuOpen ? (
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <line x1="4" y1="4" x2="20" y2="20" />
-                <line x1="20" y1="4" x2="4" y2="20" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            )}
-          </button>
-
-          <a
-            href="#"
-            className="logo"
-            onClick={(event) => {
-              event.preventDefault();
-              openHomePage();
-              setMobileMenuOpen(false);
-            }}
-          >
-            <img src="/images/surgical-logo.webp" alt="Surgical Auto Repair logo" className="logo__img" />
-          </a>
+        {/* ── Top info bar ── */}
+        <div className="header-info">
+          <div className="header-info__inner">
+            <a href="#" className="logo" onClick={(e) => { e.preventDefault(); openHomePage(); setMobileMenuOpen(false); }}>
+              <img src="/images/surgical-logo.webp" alt="Surgical Auto Repair logo" className="logo__img" />
+            </a>
+            <div className="header-info__details">
+              <a href={SHOP_PHONE_HREF} className="header-info__item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.01L6.62 10.79z"/></svg>
+                {SHOP_PHONE}
+              </a>
+              <a href={SHOP_MAP_URL} target="_blank" rel="noreferrer" className="header-info__item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+                40 N MacQuesten Pkwy, Mount Vernon, NY
+              </a>
+              <span className="header-info__item header-info__item--hours">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm.5 5v5.25l4.5 2.67-.75 1.23L11 13V7h1.5z"/></svg>
+                Mon – Fri &nbsp;8:00 AM – 6:00 PM
+              </span>
+            </div>
+            <button type="button" className="header-cta" onClick={openBookingModal}>
+              Book Appointment
+            </button>
+            <button
+              type="button"
+              className="hamburger-btn"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((v) => !v)}
+            >
+              {mobileMenuOpen ? (
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="4" y1="4" x2="20" y2="20" /><line x1="20" y1="4" x2="4" y2="20" /></svg>
+              ) : (
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+              )}
+            </button>
+          </div>
         </div>
 
-        <nav className="top-nav" aria-label="Header actions">
-          <a
-            href="#"
-            className="top-nav__link"
-            onClick={(event) => {
-              event.preventDefault();
-              openHomePage();
-            }}
-          >
-            Home
-          </a>
-          <a
-            href="#services"
-            className="top-nav__link"
-            onClick={(event) => {
-              event.preventDefault();
-              openServicesPage("nav");
-            }}
-          >
-            Services
-          </a>
-          <a
-            href="#reviews"
-            className="top-nav__link"
-            onClick={(event) => {
-              event.preventDefault();
-              openReviewsPage();
-            }}
-          >
-            Reviews
-          </a>
-          <button type="button" className="header-cta" onClick={openBookingModal}>
-            Book Appointment
-          </button>
+        {/* ── Red nav bar ── */}
+        <nav className="header-nav" aria-label="Main navigation">
+          <div className="header-nav__inner">
+            <div className="header-nav__links">
+              <a href="#" className={`header-nav__link${activePage === "home" ? " header-nav__link--active" : ""}`} onClick={(e) => { e.preventDefault(); openHomePage(); }}>Home</a>
+              <a href="#services" className={`header-nav__link${activePage === "services" ? " header-nav__link--active" : ""}`} onClick={(e) => { e.preventDefault(); openServicesPage("nav"); }}>Services</a>
+              <a href="#reviews" className={`header-nav__link${activePage === "reviews" ? " header-nav__link--active" : ""}`} onClick={(e) => { e.preventDefault(); openReviewsPage(); }}>Reviews</a>
+              <a href="#about" className={`header-nav__link${activePage === "about" ? " header-nav__link--active" : ""}`} onClick={(e) => { e.preventDefault(); openAboutPage(); }}>About</a>
+            </div>
+            <div className="header-nav__socials">
+              <a href="https://www.surecritic.com/reviews/surgical-auto-repair" target="_blank" rel="noreferrer" className="header-nav__social" aria-label="SureCritic Reviews">
+                <svg width="18" height="20" viewBox="0 0 89 99" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="44.4341" cy="17.0059" r="11.9152" fill="currentColor"/>
+                  <path d="M38.2799 52.7509C33.2342 45.2272 25.0832 32.9875 22.7041 29.1099C22.2617 28.3888 22.2568 27.5222 22.7062 26.8054C23.2363 25.9598 24.0304 24.8636 24.8792 24.294C25.8246 23.6595 27.3101 23.3614 28.4081 23.2225C29.3063 23.1088 30.1742 23.5042 30.761 24.1936L44.5338 40.375C48.3626 36.688 53.1786 29.0555 60.4447 23.7835C69.432 17.2625 84.0982 12.5522 86.5657 12.5522C87.5155 12.5522 88.0963 12.9069 88.437 13.3602C89.0314 14.1512 88.3507 15.1398 87.5164 15.6719C74.3609 24.0619 53.432 47.1833 52.8282 47.6941C52.5236 47.9519 51.6249 49.3714 50.9329 50.6551C50.3235 51.7858 49.2153 52.7523 47.9473 52.957L41.2467 54.0387C40.0905 54.2254 38.9322 53.7236 38.2799 52.7509Z" fill="currentColor"/>
+                  <path opacity="0.55" d="M50.5883 58.2169C55.634 65.7406 63.785 77.9803 66.164 81.8579C66.6065 82.579 66.6114 83.4455 66.162 84.1624C65.6319 85.0079 64.8377 86.1042 63.9889 86.6738C63.0435 87.3082 61.558 87.6063 60.46 87.7453C59.5619 87.859 58.694 87.4636 58.1072 86.7742L44.3343 70.5928C40.5055 74.2798 35.6896 81.9122 28.4235 87.1843C19.4361 93.7053 4.76994 98.4155 2.30248 98.4155C1.35262 98.4155 0.77182 98.0609 0.431168 97.6076C-0.163277 96.8166 0.517464 95.828 1.35172 95.2959C14.5073 86.9059 35.4362 63.7845 36.04 63.2736C36.3446 63.0159 37.2433 61.5964 37.9352 60.3127C38.5447 59.182 39.6529 58.2154 40.9209 58.0107L47.6215 56.929C48.7777 56.7424 49.936 57.2442 50.5883 58.2169Z" fill="currentColor"/>
+                  <path opacity="0.55" d="M71.6678 0C77.1904 0.000264141 81.6678 4.47737 81.6678 10V10.21L72.6678 14.707V10C72.6678 9.44793 72.2199 9.00026 71.6678 9H56.2821C53.9971 4.80412 49.5484 1.95619 44.4344 1.95605C39.3203 1.95605 34.8709 4.80397 32.5858 9H14.8719C14.3199 9.0002 13.872 9.44789 13.8719 10V66.7959C13.8724 67.3477 14.3201 67.7957 14.8719 67.7959H26.6268L17.4735 76.7959H14.8719L14.3573 76.7822C9.07408 76.5142 4.8724 72.1456 4.87195 66.7959V10C4.87201 4.47733 9.34931 0.000198173 14.8719 0H71.6678ZM81.6678 66.7959C81.6674 72.3182 77.1902 76.7947 71.6678 76.7949L71.6669 76.7959H67.8241L61.1132 67.7959H71.6678C72.2196 67.7956 72.6674 67.3476 72.6678 66.7959V31.0244L81.6678 23.5605V66.7959Z" fill="currentColor"/>
+                </svg>
+              </a>
+              <a href={FACEBOOK_URL} target="_blank" rel="noreferrer" className="header-nav__social" aria-label="Facebook">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99h-2.54V12h2.54V9.8c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99A10 10 0 0 0 22 12z"/></svg>
+              </a>
+            </div>
+          </div>
         </nav>
 
-        {/* Mobile dropdown menu */}
+        {/* ── Mobile dropdown ── */}
         {mobileMenuOpen && (
-          <div className="mobile-menu" role="menu">
-            <a
-              href="#"
-              className="mobile-menu__link"
-              role="menuitem"
-              onClick={(e) => {
-                e.preventDefault();
-                openHomePage();
-                setMobileMenuOpen(false);
-              }}
-            >
-              Home
-            </a>
-            <a
-              href="#services"
-              className="mobile-menu__link"
-              role="menuitem"
-              onClick={(e) => {
-                e.preventDefault();
-                openServicesPage("nav");
-                setMobileMenuOpen(false);
-              }}
-            >
-              Services
-            </a>
-            <a
-              href="#reviews"
-              className="mobile-menu__link"
-              role="menuitem"
-              onClick={(e) => {
-                e.preventDefault();
-                openReviewsPage();
-                setMobileMenuOpen(false);
-              }}
-            >
-              Reviews
-            </a>
+          <div className="mobile-nav" role="menu">
+            <a href="#" className="mobile-nav__link" role="menuitem" onClick={(e) => { e.preventDefault(); openHomePage(); setMobileMenuOpen(false); }}>Home</a>
+            <a href="#services" className="mobile-nav__link" role="menuitem" onClick={(e) => { e.preventDefault(); openServicesPage("nav"); setMobileMenuOpen(false); }}>Services</a>
+            <a href="#reviews" className="mobile-nav__link" role="menuitem" onClick={(e) => { e.preventDefault(); openReviewsPage(); setMobileMenuOpen(false); }}>Reviews</a>
+            <a href="#about" className="mobile-nav__link" role="menuitem" onClick={(e) => { e.preventDefault(); openAboutPage(); setMobileMenuOpen(false); }}>About</a>
+            <a href={SHOP_PHONE_HREF} className="mobile-nav__link">{SHOP_PHONE}</a>
           </div>
         )}
       </header>
-
       {activePage === "services" ? (
-        <main className="layout">
-          <div className="services-page-wrap">
-            <ServicesPage
-              onGoHome={openHomePage}
-              onOpenBooking={openBookingModal}
-              onOpenReviewsPage={openReviewsPage}
-              enableMobileDetailsPreview={enableServicesMobileDetailsPreview}
-            />
-          </div>
+        <main className="subpage-wrap home-theme--v3">
+          <ServicesPage
+            onGoHome={openHomePage}
+            onOpenBooking={openBookingModal}
+            onOpenReviewsPage={openReviewsPage}
+            services={services}
+          />
         </main>
       ) : activePage === "reviews" ? (
-        <main className="layout">
-          <div className="services-page-wrap">
-            <ReviewsPage onGoHome={openHomePage} onOpenBooking={openBookingModal} />
-          </div>
+        <main className="subpage-wrap home-theme--v3">
+          <ReviewsPage onGoHome={openHomePage} onOpenBooking={openBookingModal} />
         </main>
-      ) : homeLayout === 2 ? (
-        <main className="layout layout--full">
-          <HomeLuxury
-            onOpenBooking={openBookingModal}
-            onOpenServicesPage={openServicesPage}
-            onOpenReviewsPage={openReviewsPage}
-            onOpenAboutPage={openAboutPage}
-          />
-        </main>
-      ) : homeLayout === 3 ? (
-        <main className="layout layout--full">
-          <HomeTraditional
-            onOpenBooking={openBookingModal}
-            onOpenServicesPage={openServicesPage}
-            onOpenReviewsPage={openReviewsPage}
-            onOpenAboutPage={openAboutPage}
-          />
+      ) : activePage === "about" ? (
+        <main className="subpage-wrap home-theme--v3">
+          <AboutPage onGoHome={openHomePage} onOpenBooking={openBookingModal} />
         </main>
       ) : (
-        <main className="layout">
-          <div className="left-rail">
-            <section className="panel panel--primary" aria-labelledby="section-1-title">
-              <div className="panel__inner panel__inner--hero">
-                <p className="hero__location-pin">Fleetwood - Mount Vernon, NY</p>
-                <h1 id="section-1-title" className="hero__title">
-                  Reliable automotive care from a team that puts honesty first.
-                </h1>
-                <p className="hero__subtitle">
-                  Our skilled technicians handle routine maintenance, diagnostics, and major repairs with
-                  exceptional customer service and quality&nbsp;workmanship.
-                </p>
-                <div className="hero__actions">
-                  <button type="button" className="hero__cta" onClick={openBookingModal}>
-                    Book Appointment
-                  </button>
-                  <a href="tel:9147765331" className="hero__cta hero__cta--secondary">
-                    📞 {SHOP_PHONE}
-                  </a>
-                </div>
-              </div>
-            </section>
-            <section className="hours-preview hours-preview--desktop" aria-label="Shop hours">
-              <p className="hours-preview__label">Hours</p>
-              <p>Mon – Fri: 8 AM – 5:30 PM</p>
-              <p>Saturday: 8 AM – 2 PM</p>
-              <p>Sunday: Closed</p>
-            </section>
-            <CardsFooter className="cards-footer--desktop" />
-          </div>
-
-          <div className="scroll-column">
-            {cards.map((section) => (
-              <section
-                key={section.id}
-                className={`card-slot ${section.type === "image" ? "card-slot--media" : "card-slot--text"} ${section.reviews ? "card-slot--ticker" : ""}`}
-                aria-label={`Section ${section.id}`}
-              >
-                <SectionCard
-                  section={section}
-                  onOpenBooking={openBookingModal}
-                  onOpenServicesPage={openServicesPage}
-                  onOpenReviewsPage={openReviewsPage}
-                />
-              </section>
-            ))}
-            <CardsFooter className="cards-footer--mobile" />
-          </div>
+        <main className="layout layout--full">
+          <HomeModern
+            onOpenBooking={openBookingModal}
+            onOpenServicesPage={openServicesPage}
+            onOpenReviewsPage={openReviewsPage}
+            onOpenAboutPage={openAboutPage}
+            services={services}
+          />
         </main>
       )}
-      <LayoutSwitcher current={homeLayout} onChange={changeHomeLayout} />
       <BookingModal isOpen={isBookingModalOpen} onClose={closeBookingModal} wizardKey={bookingModalKey} />
       <ChatWidget bookingModalOpen={isBookingModalOpen} />
     </div>

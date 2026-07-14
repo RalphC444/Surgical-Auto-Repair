@@ -2,16 +2,6 @@ const { getStore } = require("@netlify/blobs");
 
 const MAX_PER_SLOT = 2;
 
-function bookingsStore() {
-  const siteID = process.env.NETLIFY_SITE_ID;
-  const token = process.env.NETLIFY_BLOBS_TOKEN;
-  console.log("Blobs config — siteID present:", !!siteID, "token present:", !!token);
-  if (!siteID || !token) {
-    throw new Error("Missing NETLIFY_SITE_ID or NETLIFY_BLOBS_TOKEN env vars");
-  }
-  return getStore({ name: "bookings", siteID, token });
-}
-
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: corsHeaders() };
@@ -34,8 +24,13 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = bookingsStore();
-    const existing = await store.get(dateKey, { type: "json" }).catch(() => null) || {};
+    const store = getStore({
+      name: "bookings",
+      siteID: process.env.SITE_ID,
+      token: process.env.NETLIFY_BLOBS_TOKEN,
+    });
+
+    const existing = (await store.get(dateKey, { type: "json" }).catch(() => null)) || {};
     const currentCount = existing[timeValue] || 0;
 
     if (currentCount >= MAX_PER_SLOT) {
@@ -48,8 +43,11 @@ exports.handler = async (event) => {
     existing[timeValue] = currentCount + 1;
     await store.setJSON(dateKey, existing);
 
-    const remaining = MAX_PER_SLOT - (currentCount + 1);
-    return respond(200, { success: true, booked: currentCount + 1, remaining });
+    return respond(200, {
+      success: true,
+      booked: currentCount + 1,
+      remaining: MAX_PER_SLOT - (currentCount + 1),
+    });
   } catch (err) {
     console.error("Blob write error:", err.message || err);
     return respond(500, { error: `Could not record booking: ${err.message}` });

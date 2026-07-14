@@ -2,16 +2,6 @@ const { getStore } = require("@netlify/blobs");
 
 const MAX_PER_SLOT = 2;
 
-function bookingsStore() {
-  const siteID = process.env.NETLIFY_SITE_ID;
-  const token = process.env.NETLIFY_BLOBS_TOKEN;
-  console.log("Blobs config — siteID present:", !!siteID, "token present:", !!token);
-  if (!siteID || !token) {
-    throw new Error("Missing NETLIFY_SITE_ID or NETLIFY_BLOBS_TOKEN env vars");
-  }
-  return getStore({ name: "bookings", siteID, token });
-}
-
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: corsHeaders() };
@@ -27,9 +17,13 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = bookingsStore();
-    const raw = await store.get(date, { type: "json" }).catch(() => null);
-    const counts = raw || {};
+    const store = getStore({
+      name: "bookings",
+      siteID: process.env.SITE_ID,
+      token: process.env.NETLIFY_BLOBS_TOKEN,
+    });
+
+    const counts = (await store.get(date, { type: "json" }).catch(() => null)) || {};
 
     const slots = {};
     for (const [time, count] of Object.entries(counts)) {
